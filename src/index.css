@@ -1,0 +1,256 @@
+:root {
+  --bg: #0e0f13;
+  --panel: #181a21;
+  --panel-2: #20232c;
+  --border: #2c2f3a;
+  --text: #f4f5f7;
+  --muted: #9aa0ad;
+  --accent: #ffcf00;
+  --accent-2: #e11d2a;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.app-header h1 {
+  font-family: 'Anton', system-ui, sans-serif;
+  letter-spacing: 1px;
+  margin: 4px 0;
+  font-size: 32px;
+}
+
+.app-header p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Side panel beside the stage on desktop, stacked below on mobile. */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage-wrap {
+  min-width: 0;
+}
+
+.stage-container {
+  width: 100%;
+  max-width: 1280px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  touch-action: none; /* don't scroll/zoom the page while dragging photos */
+}
+
+/* --- Control panel --- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel section h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.slider-row span {
+  width: 48px;
+  color: var(--muted);
+}
+
+.slider-row input[type='range'] {
+  flex: 1;
+}
+
+input[type='range'] {
+  accent-color: var(--accent);
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --- Buttons & segmented controls --- */
+.btn {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: #3a3e4c;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #1b1b1b;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.seg {
+  display: flex;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.seg-btn {
+  flex: 1;
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  padding: 9px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.seg-btn.active {
+  background: var(--accent);
+  color: #1b1b1b;
+  font-weight: 700;
+}
+
+.side-tabs {
+  margin-bottom: 2px;
+}
+
+.text-input,
+.select {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 14px;
+}
+
+.select {
+  flex: 1;
+}
+
+/* --- Color popover --- */
+.color-popover {
+  position: relative;
+}
+
+.swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-popover__panel {
+  position: absolute;
+  z-index: 20;
+  top: 42px;
+  left: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hex-input {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+/* --- Export --- */
+.export-bar {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.export-bar .select {
+  flex: 1;
+}
