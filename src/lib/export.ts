@@ -1,5 +1,5 @@
 import type Konva from 'konva'
-import { BASE_HEIGHT, BASE_WIDTH, FONT_FAMILY } from '../constants'
+import { BASE_HEIGHT, BASE_WIDTH, FONT_FAMILY, VS_FONT_FAMILY } from '../constants'
 
 /**
  * Export the stage as a high-resolution PNG and trigger a download.
@@ -12,7 +12,10 @@ export async function exportPng(stage: Konva.Stage, targetWidth: number) {
   // Make sure the display font is loaded before rasterizing text.
   if (document.fonts) {
     try {
-      await document.fonts.load(`700 64px "${FONT_FAMILY}"`)
+      await Promise.all([
+        document.fonts.load(`700 64px "${FONT_FAMILY}"`),
+        document.fonts.load(`400 120px "${VS_FONT_FAMILY}"`),
+      ])
       await document.fonts.ready
     } catch {
       /* fall back to whatever is available */

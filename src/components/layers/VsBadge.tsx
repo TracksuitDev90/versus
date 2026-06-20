@@ -1,55 +1,84 @@
-import { Line, Text } from 'react-konva'
-import { BASE_HEIGHT, BASE_WIDTH, FONT_FAMILY } from '../../constants'
+import { Circle, Line, Text } from 'react-konva'
+import { BASE_HEIGHT, VS_FONT_FAMILY } from '../../constants'
 import { CX } from '../../lib/geometry'
 import { starburstPoints } from '../../lib/starburst'
 
 const CY = BASE_HEIGHT / 2
 
-/** The centerpiece: layered starburst explosion with a bold "VS" on top. */
+// Every burst ring shares the same center, spike count and rotation so the layers
+// nest perfectly concentric — that's what makes it read as polished rather than
+// a pile of mismatched stars.
+const SPIKES = 18
+
+/** The centerpiece: a clean, concentric starburst seal with a bold "VS" on top. */
 export default function VsBadge() {
   return (
     <>
-      {/* Outer dark burst for contrast */}
+      {/* Soft drop shadow for depth, blurred well behind the seal. */}
       <Line
-        points={starburstPoints(CX, CY, 200, 96, 16, 0)}
+        points={starburstPoints(CX, CY, 214, 132, SPIKES)}
         closed
-        fill="#1b1b1b"
+        fill="#000000"
+        opacity={0.35}
+        shadowColor="#000000"
+        shadowBlur={30}
+        shadowOpacity={0.6}
         listening={false}
       />
-      {/* Red mid burst */}
+      {/* Dark outline burst. */}
       <Line
-        points={starburstPoints(CX, CY, 178, 90, 16, Math.PI / 16)}
+        points={starburstPoints(CX, CY, 212, 130, SPIKES)}
+        closed
+        fill="#141414"
+        listening={false}
+      />
+      {/* Crisp white rim peeking between the dark outline and the red body. */}
+      <Line
+        points={starburstPoints(CX, CY, 200, 122, SPIKES)}
+        closed
+        fill="#ffffff"
+        listening={false}
+      />
+      {/* Red body burst. */}
+      <Line
+        points={starburstPoints(CX, CY, 190, 116, SPIKES)}
         closed
         fill="#e11d2a"
         listening={false}
       />
-      {/* Bright yellow inner burst */}
-      <Line
-        points={starburstPoints(CX, CY, 150, 80, 12, Math.PI / 12)}
-        closed
-        fillRadialGradientStartPoint={{ x: CX, y: CY }}
-        fillRadialGradientEndPoint={{ x: CX, y: CY }}
+      {/* Solid golden disc gives the VS a clean, even base to sit on. */}
+      <Circle
+        x={CX}
+        y={CY}
+        radius={120}
+        fillRadialGradientStartPoint={{ x: 0, y: 0 }}
+        fillRadialGradientEndPoint={{ x: 0, y: 0 }}
         fillRadialGradientStartRadius={0}
-        fillRadialGradientEndRadius={150}
-        fillRadialGradientColorStops={[0, '#fff4b8', 1, '#ffcf00']}
+        fillRadialGradientEndRadius={120}
+        fillRadialGradientColorStops={[0, '#fff6cc', 0.7, '#ffd400', 1, '#f5b400']}
         listening={false}
       />
-      {/* VS text */}
+      {/* Thin dark ring to define the disc edge. */}
+      <Circle x={CX} y={CY} radius={120} stroke="#141414" strokeWidth={4} listening={false} />
+      {/* VS text — heavier Bowlby One face, perfectly centered on the seal. */}
       <Text
         text="VS"
-        x={CX - BASE_WIDTH / 2}
-        y={CY - 90}
-        width={BASE_WIDTH}
+        x={CX - 180}
+        y={CY - 100}
+        width={360}
+        height={200}
         align="center"
-        fontFamily={FONT_FAMILY}
-        fontStyle="bold"
-        fontSize={140}
+        verticalAlign="middle"
+        fontFamily={VS_FONT_FAMILY}
+        fontSize={120}
+        letterSpacing={6}
         fill="#ffffff"
-        stroke="#1b1b1b"
-        strokeWidth={6}
+        stroke="#141414"
+        strokeWidth={3}
+        fillAfterStrokeEnabled
         shadowColor="#000000"
-        shadowBlur={10}
-        shadowOpacity={0.45}
+        shadowBlur={8}
+        shadowOpacity={0.4}
         listening={false}
       />
     </>
