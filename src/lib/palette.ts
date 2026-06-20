@@ -2,7 +2,7 @@ import type { GradientFill } from '../store/useEditorStore'
 
 // --- Color space helpers -----------------------------------------------------
 
-function rgbToHsl(r: number, g: number, b: number) {
+export function rgbToHsl(r: number, g: number, b: number) {
   r /= 255
   g /= 255
   b /= 255
@@ -27,6 +27,21 @@ function rgbToHsl(r: number, g: number, b: number) {
     h /= 6
   }
   return { h: h * 360, s, l }
+}
+
+/** Parse a `#rgb` or `#rrggbb` hex string into 0–255 channels (falls back to black). */
+export function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  let h = hex.replace('#', '').trim()
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]
+  if (h.length !== 6) return { r: 0, g: 0, b: 0 }
+  const n = parseInt(h, 16)
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
+}
+
+/** Convert a hex color straight to HSL (degrees, 0–1, 0–1). */
+export function hexToHsl(hex: string): Swatch {
+  const { r, g, b } = hexToRgb(hex)
+  return rgbToHsl(r, g, b)
 }
 
 export function hslToHex(h: number, s: number, l: number) {
