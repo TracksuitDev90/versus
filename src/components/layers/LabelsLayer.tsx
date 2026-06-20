@@ -2,7 +2,7 @@ import { Text } from 'react-konva'
 import { BASE_HEIGHT, BASE_WIDTH } from '../../constants'
 import { useEditorStore } from '../../store/useEditorStore'
 
-const MARGIN = 46
+const MARGIN = 69
 const BOX_WIDTH = BASE_WIDTH / 2 - MARGIN * 1.5
 
 /** Bold corner labels with stroke + shadow for legibility over the photos. */

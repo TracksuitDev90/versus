@@ -35,7 +35,7 @@ export function makeSplatter(seed: number, polygon: Pt[], count = 26): Splat[] {
     splats.push({
       x: box.x + rand() * box.width,
       y: box.y + rand() * box.height,
-      r: 1.2 + rand() * 3.8,
+      r: 1.8 + rand() * 5.5,
       opacity: 0.05 + rand() * 0.13,
       light: rand() > 0.5,
     })

@@ -39,8 +39,8 @@ export default function TextControls({ side }: { side: SideId }) {
         <span>Size</span>
         <input
           type="range"
-          min={28}
-          max={110}
+          min={42}
+          max={165}
           step={1}
           value={label.fontSize}
           onChange={(e) => setLabel(side, { fontSize: Number(e.target.value) })}
