@@ -27,7 +27,7 @@ export default function FrameLayer({ side }: { side: SideId }) {
     node.getLayer()?.batchDraw()
   }, [frame.mode, frame.solid, frame.gradient.from, frame.gradient.to, frame.gradient.angle, side])
 
-  const splats = makeSplatter(side === 'left' ? 1337 : 7331, polygon)
+  const splats = makeSplatter(side === 'left' ? 1337 : 7331, polygon, 40)
 
   return (
     <Group clipFunc={(ctx) => traceClip(ctx, polygon)} listening={false}>

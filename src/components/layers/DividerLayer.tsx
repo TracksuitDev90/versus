@@ -1,9 +1,9 @@
-import { Line } from 'react-konva'
-import { lightningPoints } from '../../lib/geometry'
+import { Circle, Line } from 'react-konva'
+import { lightningPoints, seamSamples } from '../../lib/geometry'
 
 /** Jagged lightning bolt running along the diagonal seam: a wide dark backing,
- *  a bright yellow body, and a thin white core for a glowing look. Strokes are
- *  ~10% thicker than the base so the divide reads as a confident separator. */
+ *  a bright yellow body, a patchy halftone shade, and a thin white core for a
+ *  glowing, slightly printed look. Strokes run ~15% heavier than the base. */
 export default function DividerLayer() {
   const points = lightningPoints()
   const common = {
@@ -12,18 +12,52 @@ export default function DividerLayer() {
     lineJoin: 'round' as const,
     listening: false,
   }
+
   return (
     <>
-      <Line {...common} stroke="#141414" strokeWidth={38} />
+      <Line {...common} stroke="#141414" strokeWidth={66} />
       <Line
         {...common}
         stroke="#ffd400"
-        strokeWidth={22}
+        strokeWidth={38}
         shadowColor="#ffe600"
-        shadowBlur={26}
+        shadowBlur={34}
         shadowOpacity={0.9}
       />
-      <Line {...common} stroke="#ffffff" strokeWidth={8} opacity={0.95} />
+      <HalftoneShade />
+      <Line {...common} stroke="#ffffff" strokeWidth={14} opacity={0.95} />
+    </>
+  )
+}
+
+/** Subtle halftone dots laid across the yellow body, fading in and out in
+ *  patches along the bolt so it reads as hand-screened rather than flat. */
+function HalftoneShade() {
+  const samples = seamSamples(150)
+  const cols = [-15, -7, 7, 15] // offsets across the band (within the yellow body)
+  const dots: { x: number; y: number; r: number; o: number }[] = []
+
+  samples.forEach((s, i) => {
+    const t = i / (samples.length - 1)
+    // Three soft lobes along the length => halftone appears "in places".
+    const patch = Math.max(0, Math.sin(t * Math.PI * 3))
+    if (patch < 0.2) return
+    cols.forEach((c, j) => {
+      const r = (1.8 + 2.0 * patch) * (j % 2 ? 0.75 : 1)
+      dots.push({
+        x: s.x + s.nx * c,
+        y: s.y + s.ny * c,
+        r,
+        o: 0.1 + 0.18 * patch,
+      })
+    })
+  })
+
+  return (
+    <>
+      {dots.map((d, i) => (
+        <Circle key={i} x={d.x} y={d.y} radius={d.r} fill="#1b1200" opacity={d.o} listening={false} />
+      ))}
     </>
   )
 }

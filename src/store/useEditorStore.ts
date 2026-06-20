@@ -57,7 +57,7 @@ const emptyImage = (): ImageState => ({
 const defaultLabel = (text: string): LabelState => ({
   text,
   fontFamily: FONT_FAMILY,
-  fontSize: 64,
+  fontSize: 96,
   fill: '#ffffff',
 })
 

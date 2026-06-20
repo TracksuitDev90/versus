@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { SideId } from '../../constants'
 import { imagePolygon } from '../../lib/geometry'
 import { coverFit, loadImageFromFile, zoomKeepingCenter } from '../../lib/image'
+import { complementaryGradient, extractPalette } from '../../lib/palette'
 import { useEditorStore } from '../../store/useEditorStore'
 import { MAX_ZOOM_FACTOR } from '../layers/ImageHalf'
 
@@ -9,6 +10,7 @@ import { MAX_ZOOM_FACTOR } from '../layers/ImageHalf'
 export default function PhotoControls({ side }: { side: SideId }) {
   const img = useEditorStore((s) => s.images[side])
   const setImage = useEditorStore((s) => s.setImage)
+  const setFrame = useEditorStore((s) => s.setFrame)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = async (file: File | undefined) => {
@@ -25,6 +27,13 @@ export default function PhotoControls({ side }: { side: SideId }) {
       x: fit.x,
       y: fit.y,
     })
+
+    // Auto-pick a complementary backdrop from the photo's primary colors.
+    // The user can still override it from the color controls afterwards.
+    const palette = extractPalette(image)
+    if (palette.length) {
+      setFrame(side, { mode: 'gradient', gradient: complementaryGradient(palette) })
+    }
   }
 
   const handleZoom = (value: number) => {
