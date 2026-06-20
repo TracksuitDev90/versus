@@ -37,11 +37,13 @@ interface EditorState {
   images: Record<SideId, ImageState>
   frames: Record<SideId, FrameColor>
   labels: Record<SideId, LabelState>
+  badgeColor: string
 
   setImage: (side: SideId, patch: Partial<ImageState>) => void
   setFrame: (side: SideId, patch: Partial<FrameColor>) => void
   setGradient: (side: SideId, patch: Partial<GradientFill>) => void
   setLabel: (side: SideId, patch: Partial<LabelState>) => void
+  setBadgeColor: (color: string) => void
 }
 
 const emptyImage = (): ImageState => ({
@@ -76,6 +78,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     },
   },
   labels: { left: defaultLabel('TEAM ONE'), right: defaultLabel('TEAM TWO') },
+  badgeColor: '#ff1f8e',
 
   setImage: (side, patch) =>
     set((s) => ({ images: { ...s.images, [side]: { ...s.images[side], ...patch } } })),
@@ -93,4 +96,6 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   setLabel: (side, patch) =>
     set((s) => ({ labels: { ...s.labels, [side]: { ...s.labels[side], ...patch } } })),
+
+  setBadgeColor: (color) => set({ badgeColor: color }),
 }))

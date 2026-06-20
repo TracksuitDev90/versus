@@ -1,6 +1,8 @@
 import type Konva from 'konva'
 import { useState, type RefObject } from 'react'
 import type { SideId } from '../../constants'
+import { useEditorStore } from '../../store/useEditorStore'
+import ColorPopover from '../ui/ColorPopover'
 import ColorControls from './ColorControls'
 import ExportButton from './ExportButton'
 import PhotoControls from './PhotoControls'
@@ -13,6 +15,8 @@ const SIDES: { id: SideId; name: string }[] = [
 
 export default function ControlPanel({ stageRef }: { stageRef: RefObject<Konva.Stage> }) {
   const [active, setActive] = useState<SideId>('left')
+  const badgeColor = useEditorStore((s) => s.badgeColor)
+  const setBadgeColor = useEditorStore((s) => s.setBadgeColor)
 
   return (
     <aside className="panel">
@@ -42,6 +46,16 @@ export default function ControlPanel({ stageRef }: { stageRef: RefObject<Konva.S
       <section>
         <h3>Label</h3>
         <TextControls side={active} />
+      </section>
+
+      <section>
+        <h3>VS badge</h3>
+        <div className="control-group">
+          <div className="row">
+            <span>Burst color</span>
+            <ColorPopover color={badgeColor} onChange={setBadgeColor} label="VS badge color" />
+          </div>
+        </div>
       </section>
 
       <ExportButton stageRef={stageRef} />

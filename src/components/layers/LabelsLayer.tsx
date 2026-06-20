@@ -41,12 +41,13 @@ export default function LabelsLayer() {
 
 const labelOutline = {
   stroke: '#000000',
-  strokeWidth: 5,
+  strokeWidth: 2,
+  letterSpacing: 2,
   shadowColor: '#000000',
-  shadowBlur: 8,
-  shadowOffsetX: 2,
+  shadowBlur: 6,
+  shadowOffsetX: 1,
   shadowOffsetY: 2,
-  shadowOpacity: 0.6,
+  shadowOpacity: 0.5,
   listening: false,
   // Paint fill over stroke so the text color stays crisp.
   fillAfterStrokeEnabled: true,

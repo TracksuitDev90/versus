@@ -2,54 +2,68 @@ import { Line, Text } from 'react-konva'
 import { BASE_HEIGHT, BASE_WIDTH, FONT_FAMILY } from '../../constants'
 import { CX } from '../../lib/geometry'
 import { starburstPoints } from '../../lib/starburst'
+import { useEditorStore } from '../../store/useEditorStore'
 
 const CY = BASE_HEIGHT / 2
 
-/** The centerpiece: layered starburst explosion with a bold "VS" on top. */
+// Shared silhouette params so every layer nests cleanly (irregular comic burst).
+const SPIKES = 22
+const ROTATION = -Math.PI / SPIKES
+const JITTER = 0.34
+const SEED = 7
+const OUTER_R = 215
+const INNER_R = 92
+
+// One layer of the burst at a uniform scale of the base radii.
+function burst(scale: number) {
+  return starburstPoints(CX, CY, OUTER_R * scale, INNER_R * scale, SPIKES, ROTATION, JITTER, SEED)
+}
+
+/** The centerpiece: a layered comic-explosion starburst with a bold "VS" on top. */
 export default function VsBadge() {
+  const badgeColor = useEditorStore((s) => s.badgeColor)
+
   return (
     <>
-      {/* Outer dark burst for contrast */}
+      {/* Outer colored star with a crisp dark outline + soft drop shadow */}
       <Line
-        points={starburstPoints(CX, CY, 200, 96, 16, 0)}
+        points={burst(1)}
         closed
-        fill="#1b1b1b"
+        fill={badgeColor}
+        stroke="#17121a"
+        strokeWidth={7}
+        lineJoin="round"
+        shadowColor="#000000"
+        shadowBlur={18}
+        shadowOpacity={0.35}
+        shadowOffsetY={4}
         listening={false}
       />
-      {/* Red mid burst */}
-      <Line
-        points={starburstPoints(CX, CY, 178, 90, 16, Math.PI / 16)}
-        closed
-        fill="#e11d2a"
-        listening={false}
-      />
-      {/* Bright yellow inner burst */}
-      <Line
-        points={starburstPoints(CX, CY, 150, 80, 12, Math.PI / 12)}
-        closed
-        fillRadialGradientStartPoint={{ x: CX, y: CY }}
-        fillRadialGradientEndPoint={{ x: CX, y: CY }}
-        fillRadialGradientStartRadius={0}
-        fillRadialGradientEndRadius={150}
-        fillRadialGradientColorStops={[0, '#fff4b8', 1, '#ffcf00']}
-        listening={false}
-      />
-      {/* VS text */}
+      {/* White ring (the comic double-outline) */}
+      <Line points={burst(0.8)} closed fill="#ffffff" listening={false} />
+      {/* Inner colored burst the VS sits on */}
+      <Line points={burst(0.62)} closed fill={badgeColor} listening={false} />
+
+      {/* VS — perfectly centered in a box centered on the burst */}
       <Text
         text="VS"
         x={CX - BASE_WIDTH / 2}
-        y={CY - 90}
+        y={CY - 110}
         width={BASE_WIDTH}
+        height={220}
         align="center"
+        verticalAlign="middle"
         fontFamily={FONT_FAMILY}
         fontStyle="bold"
-        fontSize={140}
+        fontSize={150}
+        letterSpacing={6}
         fill="#ffffff"
-        stroke="#1b1b1b"
-        strokeWidth={6}
+        stroke="#17121a"
+        strokeWidth={3}
+        fillAfterStrokeEnabled
         shadowColor="#000000"
-        shadowBlur={10}
-        shadowOpacity={0.45}
+        shadowBlur={8}
+        shadowOpacity={0.4}
         listening={false}
       />
     </>
