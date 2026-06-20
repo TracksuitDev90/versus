@@ -6,8 +6,12 @@ export const BASE_HEIGHT = 720
 
 export const FONT_FAMILY = 'Anton'
 
+// The "VS" centerpiece uses a heavier, rounder display face than the labels.
+export const VS_FONT_FAMILY = 'Bowlby One'
+
 export const FONT_OPTIONS = [
   { label: 'Anton (bold display)', value: 'Anton' },
+  { label: 'Bowlby One (heavy)', value: 'Bowlby One' },
   { label: 'Impact', value: 'Impact, Haettenschweiler, sans-serif' },
   { label: 'Arial Black', value: '"Arial Black", Arial, sans-serif' },
   { label: 'Georgia', value: 'Georgia, serif' },

@@ -20,6 +20,7 @@ export default function LabelsLayer() {
         fontFamily={labels.left.fontFamily}
         fontStyle="bold"
         fontSize={labels.left.fontSize}
+        letterSpacing={2}
         fill={labels.left.fill}
         {...labelOutline}
       />
@@ -32,6 +33,7 @@ export default function LabelsLayer() {
         fontFamily={labels.right.fontFamily}
         fontStyle="bold"
         fontSize={labels.right.fontSize}
+        letterSpacing={2}
         fill={labels.right.fill}
         {...labelOutline}
       />
@@ -40,13 +42,15 @@ export default function LabelsLayer() {
 }
 
 const labelOutline = {
+  // A restrained outline reads as professional; the shadow does the heavy
+  // lifting for legibility over busy photos.
   stroke: '#000000',
-  strokeWidth: 5,
+  strokeWidth: 2.5,
   shadowColor: '#000000',
-  shadowBlur: 8,
+  shadowBlur: 10,
   shadowOffsetX: 2,
   shadowOffsetY: 2,
-  shadowOpacity: 0.6,
+  shadowOpacity: 0.55,
   listening: false,
   // Paint fill over stroke so the text color stays crisp.
   fillAfterStrokeEnabled: true,

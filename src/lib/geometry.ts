@@ -11,51 +11,97 @@ export interface Pt {
 export const CX = BASE_WIDTH / 2
 export const DIVIDER_OFFSET = 70 // horizontal lean of the diagonal
 export const BORDER = 26 // colored frame thickness around the outer edges
-export const GAP = 16 // half-width of the colored seam along the divider
+export const GAP = 18 // half-width of the colored seam along the divider (~10% wider)
 
 export const dividerTop: Pt = { x: CX + DIVIDER_OFFSET, y: 0 }
 export const dividerBottom: Pt = { x: CX - DIVIDER_OFFSET, y: BASE_HEIGHT }
+
+// Shape of the jagged seam. The same path is used for the color split, the photo
+// gaps, and the lightning bolt, so the divide traces the bolt exactly — no red
+// bleeding onto the blue side or vice versa.
+export const SEAM_SEGMENTS = 9
+export const SEAM_AMPLITUDE = 26
 
 /** Flatten a list of points into the [x0,y0,x1,y1,...] array Konva's Line wants. */
 export function flatten(points: Pt[]): number[] {
   return points.flatMap((p) => [p.x, p.y])
 }
 
-// --- Frame polygons (full canvas, split by the divider, drawn behind images) ---
+/**
+ * The single jagged seam, sampled top→bottom. Points are offset perpendicular to
+ * the diagonal, alternating sides, with the very ends pinned to the diagonal so
+ * the seam meets the top/bottom canvas edges cleanly.
+ */
+export function seamPoints(segments = SEAM_SEGMENTS, amplitude = SEAM_AMPLITUDE): Pt[] {
+  const dx = dividerBottom.x - dividerTop.x
+  const dy = dividerBottom.y - dividerTop.y
+  const len = Math.hypot(dx, dy)
+  // Unit perpendicular to the seam direction.
+  const px = -dy / len
+  const py = dx / len
+
+  const pts: Pt[] = []
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments
+    const baseX = dividerTop.x + dx * t
+    const baseY = dividerTop.y + dy * t
+    const edge = i === 0 || i === segments
+    const sign = i % 2 === 0 ? 1 : -1
+    const amp = edge ? 0 : amplitude
+    pts.push({ x: baseX + px * amp * sign, y: baseY + py * amp * sign })
+  }
+  return pts
+}
+
+// --- Frame polygons (full canvas, split along the seam, drawn behind images) ---
+// Splitting along the jagged seam (rather than a straight diagonal) is what keeps
+// each side's color strictly on its own side of the bolt.
 export function leftFramePolygon(): Pt[] {
-  return [
-    { x: 0, y: 0 },
-    { x: CX + DIVIDER_OFFSET, y: 0 },
-    { x: CX - DIVIDER_OFFSET, y: BASE_HEIGHT },
-    { x: 0, y: BASE_HEIGHT },
-  ]
+  return [{ x: 0, y: 0 }, ...seamPoints(), { x: 0, y: BASE_HEIGHT }]
 }
 
 export function rightFramePolygon(): Pt[] {
   return [
-    { x: CX + DIVIDER_OFFSET, y: 0 },
-    { x: BASE_WIDTH, y: 0 },
+    ...seamPoints(),
     { x: BASE_WIDTH, y: BASE_HEIGHT },
-    { x: CX - DIVIDER_OFFSET, y: BASE_HEIGHT },
+    { x: BASE_WIDTH, y: 0 },
   ]
 }
 
-// --- Image clip polygons (inset by BORDER on outer edges and GAP at the seam) ---
+/**
+ * The seam edge of one image: the jagged seam shifted GAP to that side and
+ * trimmed to the BORDER inset top and bottom (interpolating where the seam
+ * crosses those y values). Returned top→bottom.
+ */
+function seamEdge(side: SideId): Pt[] {
+  const seam = seamPoints()
+  const off = side === 'left' ? -GAP : GAP
+  const top = BORDER
+  const bottom = BASE_HEIGHT - BORDER
+
+  const interpX = (a: Pt, b: Pt, y: number) => a.x + ((b.x - a.x) * (y - a.y)) / (b.y - a.y)
+  const topX = interpX(seam[0], seam[1], top)
+  const botX = interpX(seam[seam.length - 2], seam[seam.length - 1], bottom)
+  const middle = seam.filter((p) => p.y > top && p.y < bottom)
+
+  const edge: Pt[] = [{ x: topX, y: top }, ...middle, { x: botX, y: bottom }]
+  return edge.map((p) => ({ x: p.x + off, y: p.y }))
+}
+
+// --- Image clip polygons (inset by BORDER on outer edges, GAP from the seam) ---
 export function leftImagePolygon(): Pt[] {
   return [
     { x: BORDER, y: BORDER },
-    { x: CX + DIVIDER_OFFSET - GAP, y: BORDER },
-    { x: CX - DIVIDER_OFFSET - GAP, y: BASE_HEIGHT - BORDER },
+    ...seamEdge('left'),
     { x: BORDER, y: BASE_HEIGHT - BORDER },
   ]
 }
 
 export function rightImagePolygon(): Pt[] {
   return [
-    { x: CX + DIVIDER_OFFSET + GAP, y: BORDER },
-    { x: BASE_WIDTH - BORDER, y: BORDER },
+    ...seamEdge('right'),
     { x: BASE_WIDTH - BORDER, y: BASE_HEIGHT - BORDER },
-    { x: CX - DIVIDER_OFFSET + GAP, y: BASE_HEIGHT - BORDER },
+    { x: BASE_WIDTH - BORDER, y: BORDER },
   ]
 }
 
@@ -78,28 +124,7 @@ export function bbox(points: Pt[]) {
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
 }
 
-/**
- * A jagged lightning bolt that follows the divider seam. Samples points along the
- * divider and offsets them perpendicular to the seam, alternating sides.
- */
-export function lightningPoints(segments = 9, amplitude = 26): number[] {
-  const dx = dividerBottom.x - dividerTop.x
-  const dy = dividerBottom.y - dividerTop.y
-  const len = Math.hypot(dx, dy)
-  // Unit perpendicular to the seam direction.
-  const px = -dy / len
-  const py = dx / len
-
-  const pts: Pt[] = []
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments
-    const baseX = dividerTop.x + dx * t
-    const baseY = dividerTop.y + dy * t
-    // No offset at the very ends so the bolt meets the canvas edges cleanly.
-    const edge = i === 0 || i === segments
-    const sign = i % 2 === 0 ? 1 : -1
-    const amp = edge ? 0 : amplitude
-    pts.push({ x: baseX + px * amp * sign, y: baseY + py * amp * sign })
-  }
-  return flatten(pts)
+/** The lightning bolt that rides the seam, as a flat [x,y,...] array. */
+export function lightningPoints(): number[] {
+  return flatten(seamPoints())
 }
