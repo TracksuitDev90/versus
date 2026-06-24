@@ -46,6 +46,14 @@ export default function TextControls({ side }: { side: SideId }) {
           onChange={(e) => setLabel(side, { fontSize: Number(e.target.value) })}
         />
       </label>
+      <label className="toggle-row">
+        <span>3D slant</span>
+        <input
+          type="checkbox"
+          checked={label.dimensional}
+          onChange={(e) => setLabel(side, { dimensional: e.target.checked })}
+        />
+      </label>
     </div>
   )
 }
