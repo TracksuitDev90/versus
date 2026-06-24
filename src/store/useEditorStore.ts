@@ -31,6 +31,8 @@ export interface LabelState {
   fontFamily: string
   fontSize: number
   fill: string
+  // Slanted, extruded "3D block" styling (on by default for a dynamic look).
+  dimensional: boolean
 }
 
 interface EditorState {
@@ -59,6 +61,7 @@ const defaultLabel = (text: string): LabelState => ({
   fontFamily: FONT_FAMILY,
   fontSize: 96,
   fill: '#ffffff',
+  dimensional: true,
 })
 
 export const useEditorStore = create<EditorState>((set) => ({
