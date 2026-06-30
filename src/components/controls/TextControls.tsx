@@ -47,11 +47,11 @@ export default function TextControls({ side }: { side: SideId }) {
         />
       </label>
       <label className="toggle-row">
-        <span>3D slant</span>
+        <span>Perspective tilt</span>
         <input
           type="checkbox"
-          checked={label.dimensional}
-          onChange={(e) => setLabel(side, { dimensional: e.target.checked })}
+          checked={label.perspective}
+          onChange={(e) => setLabel(side, { perspective: e.target.checked })}
         />
       </label>
     </div>

@@ -1,8 +1,8 @@
 # VS Maker — Versus Template Creator
 
 A free, browser-based tool for building "versus" battle graphics: upload two
-photos, frame them inside a diagonal split with a starburst **VS** badge and
-lightning divider, recolor the surrounding frame with solid colors or gradients,
+photos, frame them inside a diagonal split with a lightning-burst **VS** badge and
+divider, recolor the surrounding frame with solid colors or gradients,
 add bold corner labels, and export a high-resolution PNG. Runs entirely in the
 browser — no accounts, no subscription.
 
@@ -10,7 +10,7 @@ browser — no accounts, no subscription.
 
 - Upload a photo per side; **drag to reposition** and **zoom** (slider, mouse
   wheel, or pinch on touch devices). Photos always cover their half.
-- Diagonal split with a starburst **VS** badge and a lightning bolt seam.
+- Diagonal split with a radial lightning-burst **VS** badge and a lightning seam.
 - Recolor each side's frame independently — **solid** or **linear gradient**
   (with an adjustable angle).
 - Editable corner labels: text, font, size, and color.

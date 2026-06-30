@@ -7,14 +7,16 @@ import type { LabelState } from '../../store/useEditorStore'
 const MARGIN = 69
 const BOX_WIDTH = BASE_WIDTH / 2 - MARGIN * 1.5
 
-// "3D block" tuning. The extrusion is a stack of offset copies drawn behind the
-// bright fill; the slant leans the whole label forward like the gig-poster type.
-const EXTRUDE_STEPS = 9 // number of stacked copies behind the fill
-const EXTRUDE_DX = 3 // per-step offset toward bottom-right (design units)
-const EXTRUDE_DY = 3
-const SLANT = -0.18 // skewX; negative = top leans right (forward italic)
+// Perspective ground-tilt tuning. Rather than a floating 3D block, the label is
+// foreshortened and leaned so it reads as printed onto the angled surface and
+// tilting toward the viewer. A single dark copy behind it grounds it with a
+// contact shadow.
+const LEAN = -0.12 // skewX; negative = top leans right (forward like gig-poster type)
+const FORESHORTEN = 0.82 // scaleY; <1 squashes the height for the tilted-plane look
+const CONTACT_DX = 4 // contact-shadow offset behind the fill (design units)
+const CONTACT_DY = 8
 
-/** Darken the label color for the extrusion so the depth stays tied to the fill. */
+/** Darken the label color for the contact shadow so it stays tied to the fill. */
 function extrudeShade(fill: string): string {
   const { h, s, l } = hexToHsl(fill)
   return hslToHex(h, s, Math.max(0, l * 0.35))
@@ -40,7 +42,7 @@ export default function LabelsLayer() {
   )
 }
 
-/** A single side's label — flat, or slanted + extruded when `dimensional`. */
+/** A single side's label — flat, or tilted into perspective when `perspective`. */
 function LabelText({
   label,
   x,
@@ -50,46 +52,45 @@ function LabelText({
   x: number
   align: 'left' | 'right'
 }) {
-  const y = BASE_HEIGHT - label.fontSize - MARGIN
-
   const textProps = {
     text: label.text,
     width: BOX_WIDTH,
     align,
     fontFamily: label.fontFamily,
-    fontStyle: 'bold',
+    // The curated options are all heavy display faces; faux-bold synthesis both
+    // looks muddy and breaks web-font resolution for multi-word families.
+    fontStyle: 'normal',
     fontSize: label.fontSize,
     letterSpacing: 2,
   } as const
 
-  if (!label.dimensional) {
+  if (!label.perspective) {
+    const y = BASE_HEIGHT - label.fontSize - MARGIN
     return <Text x={x} y={y} fill={label.fill} {...textProps} {...labelOutline} />
   }
 
   const shade = extrudeShade(label.fill)
 
-  // Skew shears about the node origin, pushing the (lower) baseline left; nudge x
-  // right by roughly half the slant's reach over the text height to keep it in box.
-  const skewShift = -SLANT * label.fontSize * 0.5
+  // Pin the near (bottom) edge a fixed margin from the canvas bottom and lay the
+  // text out *above* the origin, so foreshorten + skew tilt the plane upward and
+  // away from the viewer while the baseline stays put as the size changes.
+  const baselineY = BASE_HEIGHT - MARGIN
+  // The lean shifts the top rightward; nudge the group left by ~half that reach
+  // over the text height to keep the slanted text inside its box.
+  const skewShift = LEAN * label.fontSize * 0.5
 
   return (
-    <Group x={x + skewShift} y={y} skewX={SLANT}>
-      {/* Extrusion: deepest copy first, nearest last, all in the dark shade. */}
-      {Array.from({ length: EXTRUDE_STEPS }, (_, i) => {
-        const depth = EXTRUDE_STEPS - i // farthest gets the largest offset
-        return (
-          <Text
-            key={i}
-            x={depth * EXTRUDE_DX}
-            y={depth * EXTRUDE_DY}
-            fill={shade}
-            listening={false}
-            {...textProps}
-          />
-        )
-      })}
+    <Group x={x + skewShift} y={baselineY} skewX={LEAN} scaleY={FORESHORTEN}>
+      {/* Contact shadow: one dark copy nudged down/back to ground the text. */}
+      <Text
+        x={CONTACT_DX}
+        y={-label.fontSize + CONTACT_DY}
+        fill={shade}
+        listening={false}
+        {...textProps}
+      />
       {/* Bright fill on top, with the existing stroke + shadow for legibility. */}
-      <Text x={0} y={0} fill={label.fill} {...textProps} {...labelOutline} />
+      <Text x={0} y={-label.fontSize} fill={label.fill} {...textProps} {...labelOutline} />
     </Group>
   )
 }

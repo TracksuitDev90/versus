@@ -1,11 +1,10 @@
 import type { FrameColor } from '../store/useEditorStore'
 import type { Pt } from './geometry'
 import { hexToHsl, hexToRgb, hslToHex } from './palette'
-import { starburstPoints } from './starburst'
 import { mulberry32 } from './texture'
 
 /**
- * A cosmic color set derived from the two sides' frame colors. The galaxy reads
+ * A cosmic color set derived from the two sides' frame colors. The burst reads
  * as "multicolored" by fanning hues out around each side's hue and pushing them
  * to a neon saturation/lightness, while a bright `core` and dark `backdropInner`
  * give the glowing-center-on-deep-space look of the reference image.
@@ -59,119 +58,54 @@ export function withAlpha(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-/**
- * Sample a logarithmic spiral as a smooth point list. Radius grows exponentially
- * from `startR` to `endR` across `turns` revolutions, offset by `phase` (radians).
- * Feed the result to a Konva `Line` with `tension` for fluid, watery curves.
- */
-export function logSpiral(
-  cx: number,
-  cy: number,
-  startR: number,
-  endR: number,
-  turns: number,
-  samples: number,
-  phase: number,
-): Pt[] {
-  const pts: Pt[] = []
-  const total = turns * Math.PI * 2
-  const ratio = endR / startR
-  for (let i = 0; i <= samples; i++) {
-    const t = i / samples
-    const r = startR * Math.pow(ratio, t)
-    const theta = phase + t * total
-    pts.push({ x: cx + Math.cos(theta) * r, y: cy + Math.sin(theta) * r })
-  }
-  return pts
-}
-
-/** `count` spiral arms evenly spaced in phase — the galaxy's swirling bands. */
-export function swirlArms(
-  cx: number,
-  cy: number,
-  count: number,
-  startR: number,
-  endR: number,
-  turns: number,
-  samples = 80,
-): Pt[][] {
-  const arms: Pt[][] = []
-  for (let i = 0; i < count; i++) {
-    arms.push(logSpiral(cx, cy, startR, endR, turns, samples, (i / count) * Math.PI * 2))
-  }
-  return arms
-}
-
-export interface Globe {
-  x: number
-  y: number
-  r: number
-  colorA: string // bright core of the goo blob
-  colorB: string // edge it fades toward
+export interface Bolt {
+  points: number[] // flat [x,y,...] from the inner (center) end out to the tip
+  tip: Pt // outer tip, used as the stroke gradient's far point
 }
 
 /**
- * Deterministic "water goo" blobs strung along the spiral arms. Positions, sizes
- * and colors are seeded (via `mulberry32`) so the galaxy is stable across
- * re-renders and PNG export, like the splatter system.
+ * A radial burst of jagged lightning bolts converging on the center. Bolts are
+ * evenly spaced around the circle (with a little angular wobble) and zig-zag
+ * perpendicular to their ray. Geometry is seeded (via `mulberry32`) so the burst
+ * is stable across re-renders and PNG export, like the old swirl. Paint each with
+ * a stroke gradient that fades to transparent early so it falls off rapidly as it
+ * leaves the center.
  */
-export function gooGlobes(
+export function radialBolts(
   seed: number,
   cx: number,
   cy: number,
-  palette: GalaxyPalette,
   count: number,
-  startR: number,
-  endR: number,
-  turns: number,
-): Globe[] {
+  innerR: number,
+  outerR: number,
+  segments: number,
+  jitter: number,
+): Bolt[] {
   const rand = mulberry32(seed)
-  const globes: Globe[] = []
+  const bolts: Bolt[] = []
   for (let i = 0; i < count; i++) {
-    // Ride a spiral at a random distance out, then jitter off it for an organic clump.
-    const phase = rand() * Math.PI * 2
-    const t = rand()
-    const r = startR * Math.pow(endR / startR, t)
-    const theta = phase + t * turns * Math.PI * 2
-    const jitter = 26 + rand() * 34
-    const ja = rand() * Math.PI * 2
-    const x = cx + Math.cos(theta) * r + Math.cos(ja) * jitter
-    const y = cy + Math.sin(theta) * r + Math.sin(ja) * jitter
-    const colorA = palette.blobs[Math.floor(rand() * palette.blobs.length)]
-    globes.push({
-      x,
-      y,
-      r: 26 + rand() * 58 * (0.5 + t), // blobs grow toward the outer rim
-      colorA,
-      colorB: withAlpha(colorA, 0),
-    })
-  }
-  return globes
-}
+    // Even angular spacing with a touch of wobble so it isn't mechanical.
+    const angle = (i / count) * Math.PI * 2 + (rand() - 0.5) * ((Math.PI / count) * 0.8)
+    const reach = outerR * (0.55 + rand() * 0.45) // randomized length, capped at outerR
+    const dirX = Math.cos(angle)
+    const dirY = Math.sin(angle)
+    const px = -dirY // unit perpendicular to the ray
+    const py = dirX
 
-export interface Sparkle {
-  points: number[] // flat [x,y,...] for a 4-point Konva star
-  x: number
-  y: number
-}
+    const pts: Pt[] = []
+    for (let s = 0; s <= segments; s++) {
+      const t = s / segments
+      const r = innerR + (reach - innerR) * t
+      // Pin the inner and outer ends to the ray; zig-zag the middle, splaying
+      // a little wider toward the tip.
+      const edge = s === 0 || s === segments
+      const sign = s % 2 === 0 ? 1 : -1
+      const amp = edge ? 0 : jitter * (0.4 + 0.6 * t) * (0.6 + rand() * 0.8)
+      pts.push({ x: cx + dirX * r + px * amp * sign, y: cy + dirY * r + py * amp * sign })
+    }
 
-/** A few 4-point sparkle stars scattered across the disc (seeded for stability). */
-export function sparkles(
-  seed: number,
-  cx: number,
-  cy: number,
-  radius: number,
-  count: number,
-): Sparkle[] {
-  const rand = mulberry32(seed)
-  const out: Sparkle[] = []
-  for (let i = 0; i < count; i++) {
-    const a = rand() * Math.PI * 2
-    const d = (0.25 + rand() * 0.75) * radius
-    const x = cx + Math.cos(a) * d
-    const y = cy + Math.sin(a) * d
-    const outer = 10 + rand() * 26
-    out.push({ x, y, points: starburstPoints(x, y, outer, outer * 0.22, 4) })
+    const tip = pts[pts.length - 1]
+    bolts.push({ points: pts.flatMap((p) => [p.x, p.y]), tip })
   }
-  return out
+  return bolts
 }
