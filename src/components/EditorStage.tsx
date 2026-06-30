@@ -1,8 +1,8 @@
 import type Konva from 'konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
-import { forwardRef, useRef } from 'react'
+import { forwardRef, useEffect, useRef, useState } from 'react'
 import { Layer, Rect, Stage } from 'react-konva'
-import { BASE_HEIGHT, BASE_WIDTH, type SideId } from '../constants'
+import { BASE_HEIGHT, BASE_WIDTH, FONT_OPTIONS, VS_FONT_FAMILY, type SideId } from '../constants'
 import { CX, imagePolygon } from '../lib/geometry'
 import { zoomKeepingCenter } from '../lib/image'
 import { useResponsiveStage } from '../lib/useResponsiveStage'
@@ -13,10 +13,44 @@ import ImageHalf, { MAX_ZOOM_FACTOR } from './layers/ImageHalf'
 import LabelsLayer from './layers/LabelsLayer'
 import VsBadge from './layers/VsBadge'
 
+/**
+ * Konva draws text to a canvas, which paints with a fallback font if the web
+ * font isn't loaded yet and never repaints on its own. So eagerly fetch every
+ * display face up front (canvas alone won't trigger the download) and flip a flag
+ * once they're ready, which we use to remount the text layer with correct glyphs
+ * and metrics.
+ */
+function useFontsReady(): boolean {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    if (!document.fonts) {
+      setReady(true)
+      return
+    }
+    let cancelled = false
+    const families = [VS_FONT_FAMILY, ...FONT_OPTIONS.map((f) => f.value)]
+    Promise.all(
+      families.flatMap((fam) => [
+        document.fonts.load(`bold 96px "${fam}"`),
+        document.fonts.load(`400 120px "${fam}"`),
+      ]),
+    )
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setReady(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  return ready
+}
+
 /** The scaled Konva stage hosting every layer. Forwards the stage ref so the
  *  export helper can rasterize it at high resolution. */
 const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
   const { containerRef, scale } = useResponsiveStage()
+  const fontsReady = useFontsReady()
   const lastDist = useRef(0)
   const pinchSide = useRef<SideId | null>(null)
 
@@ -72,7 +106,9 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
           <ImageHalf side="left" />
           <ImageHalf side="right" />
         </Layer>
-        <Layer listening={false}>
+        {/* Remount once fonts are ready so canvas text re-measures and re-rasterizes
+            with the real faces instead of the fallback. */}
+        <Layer key={fontsReady ? 'fonts-ready' : 'fonts-loading'} listening={false}>
           <DividerLayer />
           <VsBadge />
           <LabelsLayer />

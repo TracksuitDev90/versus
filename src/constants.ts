@@ -4,17 +4,21 @@
 export const BASE_WIDTH = 1920
 export const BASE_HEIGHT = 1080
 
-export const FONT_FAMILY = 'Anton'
+// Bowlby One is the default display face across every text element.
+export const FONT_FAMILY = 'Bowlby One'
 
-// The "VS" centerpiece uses a heavier, rounder display face than the labels.
+// The "VS" centerpiece shares the same heavy, rounded display face.
 export const VS_FONT_FAMILY = 'Bowlby One'
 
+// Curated bold display set, all loaded from Google Fonts (see index.html).
 export const FONT_OPTIONS = [
-  { label: 'Anton (bold display)', value: 'Anton' },
-  { label: 'Bowlby One (heavy)', value: 'Bowlby One' },
-  { label: 'Impact', value: 'Impact, Haettenschweiler, sans-serif' },
-  { label: 'Arial Black', value: '"Arial Black", Arial, sans-serif' },
-  { label: 'Georgia', value: 'Georgia, serif' },
+  { label: 'Bowlby One (default)', value: 'Bowlby One' },
+  { label: 'Anton (condensed)', value: 'Anton' },
+  { label: 'Archivo Black', value: 'Archivo Black' },
+  { label: 'Bebas Neue (tall)', value: 'Bebas Neue' },
+  { label: 'Bungee (blocky)', value: 'Bungee' },
+  { label: 'Russo One', value: 'Russo One' },
+  { label: 'Luckiest Guy (cartoon)', value: 'Luckiest Guy' },
 ]
 
 // Export resolution presets. pixelRatio is derived as targetWidth / BASE_WIDTH.
