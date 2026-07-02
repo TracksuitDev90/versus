@@ -2,7 +2,9 @@ import type { SideId } from '../../constants'
 import { useEditorStore } from '../../store/useEditorStore'
 import ColorPopover from '../ui/ColorPopover'
 
-/** Frame color controls for one side: solid or linear gradient. */
+/** Frame color controls for one side. The colors tint that side's flame
+ *  backdrop: gradient mode blends the two stops' hues into the tint, though
+ *  the angle no longer affects rendering (flames have no linear gradient). */
 export default function ColorControls({ side }: { side: SideId }) {
   const frame = useEditorStore((s) => s.frames[side])
   const setFrame = useEditorStore((s) => s.setFrame)

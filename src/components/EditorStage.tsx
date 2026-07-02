@@ -5,10 +5,11 @@ import { Layer, Rect, Stage } from 'react-konva'
 import { BASE_HEIGHT, BASE_WIDTH, FONT_OPTIONS, VS_FONT_FAMILY, type SideId } from '../constants'
 import { CX, imagePolygon } from '../lib/geometry'
 import { zoomKeepingCenter } from '../lib/image'
+import { FLAME_BACKDROP } from '../lib/flames'
 import { useResponsiveStage } from '../lib/useResponsiveStage'
 import { useEditorStore } from '../store/useEditorStore'
 import DividerLayer from './layers/DividerLayer'
-import FrameLayer from './layers/FrameLayer'
+import FlameBackdrop from './layers/FlameBackdrop'
 import ImageHalf, { MAX_ZOOM_FACTOR } from './layers/ImageHalf'
 import LabelsLayer from './layers/LabelsLayer'
 import VsBadge from './layers/VsBadge'
@@ -99,12 +100,35 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
         onTouchMove={handleTouchMove}
         onTouchEnd={endPinch}
       >
+        {/* Backdrop gets its own layer so the flame animation redraws only two
+            cached bitmaps, never the photos above. */}
+        <Layer listening={false}>
+          <Rect
+            x={0}
+            y={0}
+            width={BASE_WIDTH}
+            height={BASE_HEIGHT}
+            fill={FLAME_BACKDROP}
+            listening={false}
+          />
+          <FlameBackdrop />
+        </Layer>
         <Layer>
-          <Rect x={0} y={0} width={BASE_WIDTH} height={BASE_HEIGHT} fill="#0b0b0b" listening={false} />
-          <FrameLayer side="left" />
-          <FrameLayer side="right" />
           <ImageHalf side="left" />
           <ImageHalf side="right" />
+          {/* Soft radial vignette pushes the eye toward the center clash. */}
+          <Rect
+            x={0}
+            y={0}
+            width={BASE_WIDTH}
+            height={BASE_HEIGHT}
+            fillRadialGradientStartPoint={{ x: BASE_WIDTH / 2, y: BASE_HEIGHT / 2 }}
+            fillRadialGradientEndPoint={{ x: BASE_WIDTH / 2, y: BASE_HEIGHT / 2 }}
+            fillRadialGradientStartRadius={520}
+            fillRadialGradientEndRadius={1110}
+            fillRadialGradientColorStops={[0, 'rgba(0,0,0,0)', 1, 'rgba(0,0,0,0.28)']}
+            listening={false}
+          />
         </Layer>
         {/* Remount once fonts are ready so canvas text re-measures and re-rasterizes
             with the real faces instead of the fallback. */}

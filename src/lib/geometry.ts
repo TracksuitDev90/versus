@@ -1,3 +1,4 @@
+import type Konva from 'konva'
 import type { SideId } from '../constants'
 import { BASE_HEIGHT, BASE_WIDTH } from '../constants'
 
@@ -25,6 +26,15 @@ export const SEAM_AMPLITUDE = 39
 /** Flatten a list of points into the [x0,y0,x1,y1,...] array Konva's Line wants. */
 export function flatten(points: Pt[]): number[] {
   return points.flatMap((p) => [p.x, p.y])
+}
+
+/** Trace a polygon into a Konva clip context (shared by the clipped layers). */
+export function traceClip(ctx: Konva.Context, polygon: Pt[]) {
+  const flat = flatten(polygon)
+  ctx.beginPath()
+  ctx.moveTo(flat[0], flat[1])
+  for (let i = 2; i < flat.length; i += 2) ctx.lineTo(flat[i], flat[i + 1])
+  ctx.closePath()
 }
 
 /**

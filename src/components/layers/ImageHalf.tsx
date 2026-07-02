@@ -1,8 +1,7 @@
-import type Konva from 'konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
-import { Group, Image as KonvaImage } from 'react-konva'
+import { Group, Image as KonvaImage, Line } from 'react-konva'
 import type { SideId } from '../../constants'
-import { flatten, imagePolygon, type Pt } from '../../lib/geometry'
+import { flatten, imagePolygon, traceClip } from '../../lib/geometry'
 import { clampToCover, zoomKeepingCenter } from '../../lib/image'
 import { useEditorStore } from '../../store/useEditorStore'
 
@@ -48,14 +47,15 @@ export default function ImageHalf({ side }: { side: SideId }) {
         onDragEnd={handleDragEnd}
         onWheel={handleWheel}
       />
+      {/* Stroke centered on the clip edge: the outer half is clipped away,
+          leaving an inner shadow that seats the photo into the frame. */}
+      <Line
+        points={flatten(polygon)}
+        closed
+        stroke="rgba(0,0,0,0.35)"
+        strokeWidth={22}
+        listening={false}
+      />
     </Group>
   )
-}
-
-function traceClip(ctx: Konva.Context, polygon: Pt[]) {
-  const flat = flatten(polygon)
-  ctx.beginPath()
-  ctx.moveTo(flat[0], flat[1])
-  for (let i = 2; i < flat.length; i += 2) ctx.lineTo(flat[i], flat[i + 1])
-  ctx.closePath()
 }

@@ -40,11 +40,16 @@ interface EditorState {
   images: Record<SideId, ImageState>
   frames: Record<SideId, FrameColor>
   labels: Record<SideId, LabelState>
+  // True while a PNG export is in flight: the flame backdrop uncaches its
+  // bitmaps (so vectors rasterize sharp at the export pixelRatio) and freezes
+  // its animation until the export finishes.
+  exporting: boolean
 
   setImage: (side: SideId, patch: Partial<ImageState>) => void
   setFrame: (side: SideId, patch: Partial<FrameColor>) => void
   setGradient: (side: SideId, patch: Partial<GradientFill>) => void
   setLabel: (side: SideId, patch: Partial<LabelState>) => void
+  setExporting: (exporting: boolean) => void
 }
 
 const emptyImage = (): ImageState => ({
@@ -80,6 +85,7 @@ export const useEditorStore = create<EditorState>((set) => ({
     },
   },
   labels: { left: defaultLabel('TEAM ONE'), right: defaultLabel('TEAM TWO') },
+  exporting: false,
 
   setImage: (side, patch) =>
     set((s) => ({ images: { ...s.images, [side]: { ...s.images[side], ...patch } } })),
@@ -97,4 +103,6 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   setLabel: (side, patch) =>
     set((s) => ({ labels: { ...s.labels, [side]: { ...s.labels[side], ...patch } } })),
+
+  setExporting: (exporting) => set({ exporting }),
 }))
