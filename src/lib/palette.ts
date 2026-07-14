@@ -1,5 +1,3 @@
-import type { GradientFill } from '../store/useEditorStore'
-
 // --- Color space helpers -----------------------------------------------------
 
 export function rgbToHsl(r: number, g: number, b: number) {
@@ -132,24 +130,15 @@ function hueDelta(a: number, b: number) {
 }
 
 /**
- * Build a two-stop gradient that *complements* the photo's primary colors, so
- * the surrounding frame is a cool, contrasting backdrop rather than a clash.
- * We rotate to the complementary hue and run it from a deep to a vivid tone.
+ * Pick one flat "spot ink" that complements the photo's primary color — the
+ * editorial equivalent of choosing a second printing ink for the page. Rotates
+ * to the complementary hue and clamps to a punchy but printable tone.
  */
-export function complementaryGradient(palette: Swatch[]): GradientFill {
+export function posterInk(palette: Swatch[]): string {
   const primary = palette[0]
-  if (!primary) return { from: '#2bb6e0', to: '#0b2a6b', angle: 135 }
+  if (!primary) return '#1d4fd7'
 
   const compHue = primary.h + 180
-  const sat = Math.min(0.82, Math.max(0.5, primary.s))
-
-  // If a distinct second color exists, lean the far stop toward *its* complement
-  // for a richer two-tone; otherwise fan out analogously from the complement.
-  const secondHue = palette[1] ? palette[1].h + 180 : compHue + 28
-
-  return {
-    from: hslToHex(compHue, sat, 0.3),
-    to: hslToHex(secondHue, Math.min(0.8, sat * 0.95), 0.56),
-    angle: 135,
-  }
+  const sat = Math.min(0.8, Math.max(0.55, primary.s))
+  return hslToHex(compHue, sat, 0.42)
 }

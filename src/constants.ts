@@ -4,21 +4,26 @@
 export const BASE_WIDTH = 1920
 export const BASE_HEIGHT = 1080
 
-// Bowlby One is the default display face across every text element.
-export const FONT_FAMILY = 'Bowlby One'
+// --- Editorial palette. Flat ink on paper — no shadows, no gloss, anywhere. ---
+export const PAPER = '#f2eee3' // warm uncoated stock
+export const INK = '#181611' // near-black printing ink
 
-// The "VS" centerpiece shares the same heavy, rounded display face.
-export const VS_FONT_FAMILY = 'Bowlby One'
+// Archivo Black is the workhorse display face: an extremely heavy grotesque
+// in the Druk/Helvetica-Black editorial tradition.
+export const FONT_FAMILY = 'Archivo Black'
 
-// Curated bold display set, all loaded from Google Fonts (see index.html).
+// The giant "VS" centerpiece is set in the same heavy grotesque.
+export const VS_FONT_FAMILY = 'Archivo Black'
+
+// Page furniture (captions, folios, rules text) is set in a typewriter mono,
+// the classic counterpoint to heavy display type in editorial layouts.
+export const MONO_FONT_FAMILY = 'Space Mono'
+
+// Curated heavyweight sans set, all loaded from Google Fonts (see index.html).
 export const FONT_OPTIONS = [
-  { label: 'Bowlby One (default)', value: 'Bowlby One' },
+  { label: 'Archivo Black (default)', value: 'Archivo Black' },
   { label: 'Anton (condensed)', value: 'Anton' },
-  { label: 'Archivo Black', value: 'Archivo Black' },
   { label: 'Bebas Neue (tall)', value: 'Bebas Neue' },
-  { label: 'Bungee (blocky)', value: 'Bungee' },
-  { label: 'Russo One', value: 'Russo One' },
-  { label: 'Luckiest Guy (cartoon)', value: 'Luckiest Guy' },
 ]
 
 // Export resolution presets. pixelRatio is derived as targetWidth / BASE_WIDTH.

@@ -47,11 +47,11 @@ export default function TextControls({ side }: { side: SideId }) {
         />
       </label>
       <label className="toggle-row">
-        <span>Perspective tilt</span>
+        <span>Kicker strip (uses this side's ink)</span>
         <input
           type="checkbox"
-          checked={label.perspective}
-          onChange={(e) => setLabel(side, { perspective: e.target.checked })}
+          checked={label.strip}
+          onChange={(e) => setLabel(side, { strip: e.target.checked })}
         />
       </label>
     </div>

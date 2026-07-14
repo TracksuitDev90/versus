@@ -1,8 +1,5 @@
-import type { Pt } from './geometry'
-import { bbox } from './geometry'
-
-/** Tiny deterministic PRNG (mulberry32) so splatter is stable across re-renders
- *  and exports instead of dancing around on every draw. */
+/** Tiny deterministic PRNG (mulberry32) so paper flecks are stable across
+ *  re-renders and exports instead of dancing around on every draw. */
 export function mulberry32(seed: number) {
   let a = seed >>> 0
   return () => {
@@ -14,31 +11,30 @@ export function mulberry32(seed: number) {
   }
 }
 
-export interface Splat {
+export interface Fleck {
   x: number
   y: number
   r: number
   opacity: number
-  light: boolean
+  dark: boolean
 }
 
 /**
- * A handful of small splatter dots scattered within a polygon's bounding box.
- * Positions/sizes are seeded so they stay put; they're clipped to the frame
- * shape by the caller, so dots that fall off-side simply don't show.
+ * Tiny fiber flecks scattered across the sheet, like the impurities in uncoated
+ * recycled stock. Seeded so they stay put; drawn under the photos, so only the
+ * flecks on visible paper (margins and gutter) actually show.
  */
-export function makeSplatter(seed: number, polygon: Pt[], count = 26): Splat[] {
-  const box = bbox(polygon)
+export function makeFlecks(seed: number, width: number, height: number, count = 170): Fleck[] {
   const rand = mulberry32(seed)
-  const splats: Splat[] = []
+  const flecks: Fleck[] = []
   for (let i = 0; i < count; i++) {
-    splats.push({
-      x: box.x + rand() * box.width,
-      y: box.y + rand() * box.height,
-      r: 1.8 + rand() * 5.5,
-      opacity: 0.05 + rand() * 0.13,
-      light: rand() > 0.5,
+    flecks.push({
+      x: rand() * width,
+      y: rand() * height,
+      r: 0.7 + rand() * 1.9,
+      opacity: 0.04 + rand() * 0.08,
+      dark: rand() > 0.3,
     })
   }
-  return splats
+  return flecks
 }

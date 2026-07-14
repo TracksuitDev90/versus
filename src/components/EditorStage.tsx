@@ -1,8 +1,15 @@
 import type Konva from 'konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import { Layer, Rect, Stage } from 'react-konva'
-import { BASE_HEIGHT, BASE_WIDTH, FONT_OPTIONS, VS_FONT_FAMILY, type SideId } from '../constants'
+import { Layer, Stage } from 'react-konva'
+import {
+  BASE_HEIGHT,
+  BASE_WIDTH,
+  FONT_OPTIONS,
+  MONO_FONT_FAMILY,
+  VS_FONT_FAMILY,
+  type SideId,
+} from '../constants'
 import { CX, imagePolygon } from '../lib/geometry'
 import { zoomKeepingCenter } from '../lib/image'
 import { useResponsiveStage } from '../lib/useResponsiveStage'
@@ -11,6 +18,8 @@ import DividerLayer from './layers/DividerLayer'
 import FrameLayer from './layers/FrameLayer'
 import ImageHalf, { MAX_ZOOM_FACTOR } from './layers/ImageHalf'
 import LabelsLayer from './layers/LabelsLayer'
+import PageFurniture from './layers/PageFurniture'
+import PaperLayer from './layers/PaperLayer'
 import VsBadge from './layers/VsBadge'
 
 /**
@@ -28,7 +37,9 @@ function useFontsReady(): boolean {
       return
     }
     let cancelled = false
-    const families = [VS_FONT_FAMILY, ...FONT_OPTIONS.map((f) => f.value)]
+    const families = Array.from(
+      new Set([VS_FONT_FAMILY, MONO_FONT_FAMILY, ...FONT_OPTIONS.map((f) => f.value)]),
+    )
     Promise.all(
       families.flatMap((fam) => [
         document.fonts.load(`bold 96px "${fam}"`),
@@ -100,7 +111,7 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
         onTouchEnd={endPinch}
       >
         <Layer>
-          <Rect x={0} y={0} width={BASE_WIDTH} height={BASE_HEIGHT} fill="#0b0b0b" listening={false} />
+          <PaperLayer />
           <FrameLayer side="left" />
           <FrameLayer side="right" />
           <ImageHalf side="left" />
@@ -109,6 +120,7 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
         {/* Remount once fonts are ready so canvas text re-measures and re-rasterizes
             with the real faces instead of the fallback. */}
         <Layer key={fontsReady ? 'fonts-ready' : 'fonts-loading'} listening={false}>
+          <PageFurniture />
           <DividerLayer />
           <VsBadge />
           <LabelsLayer />
