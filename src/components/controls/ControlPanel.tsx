@@ -7,8 +7,8 @@ import PhotoControls from './PhotoControls'
 import TextControls from './TextControls'
 
 const SIDES: { id: SideId; name: string }[] = [
-  { id: 'left', name: 'Left side' },
-  { id: 'right', name: 'Right side' },
+  { id: 'left', name: 'Left plate' },
+  { id: 'right', name: 'Right plate' },
 ]
 
 export default function ControlPanel({ stageRef }: { stageRef: RefObject<Konva.Stage> }) {
@@ -30,17 +30,23 @@ export default function ControlPanel({ stageRef }: { stageRef: RefObject<Konva.S
       </div>
 
       <section>
-        <h3>Photo</h3>
+        <h3>
+          <em>01</em> Photo
+        </h3>
         <PhotoControls side={active} />
       </section>
 
       <section>
-        <h3>Frame color</h3>
+        <h3>
+          <em>02</em> Spot ink
+        </h3>
         <ColorControls side={active} />
       </section>
 
       <section>
-        <h3>Label</h3>
+        <h3>
+          <em>03</em> Headline
+        </h3>
         <TextControls side={active} />
       </section>
 

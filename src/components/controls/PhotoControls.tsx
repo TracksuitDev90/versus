@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import type { SideId } from '../../constants'
 import { imagePolygon } from '../../lib/geometry'
 import { coverFit, loadImageFromFile, zoomKeepingCenter } from '../../lib/image'
-import { complementaryGradient, extractPalette } from '../../lib/palette'
+import { extractPalette, posterInk } from '../../lib/palette'
 import { useEditorStore } from '../../store/useEditorStore'
 import { MAX_ZOOM_FACTOR } from '../layers/ImageHalf'
 
@@ -28,11 +28,11 @@ export default function PhotoControls({ side }: { side: SideId }) {
       y: fit.y,
     })
 
-    // Auto-pick a complementary backdrop from the photo's primary colors.
-    // The user can still override it from the color controls afterwards.
+    // Auto-pick a flat complementary spot ink from the photo's primary colors.
+    // The user can still override it from the ink controls afterwards.
     const palette = extractPalette(image)
     if (palette.length) {
-      setFrame(side, { mode: 'gradient', gradient: complementaryGradient(palette) })
+      setFrame(side, { mode: 'solid', solid: posterInk(palette) })
     }
   }
 

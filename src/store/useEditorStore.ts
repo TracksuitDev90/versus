@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { SideId } from '../constants'
-import { FONT_FAMILY } from '../constants'
+import { FONT_FAMILY, PAPER } from '../constants'
 
 export type FillMode = 'solid' | 'gradient'
 
@@ -31,9 +31,9 @@ export interface LabelState {
   fontFamily: string
   fontSize: number
   fill: string
-  // Perspective ground-tilt: foreshortened + leaning so the title reads as if
-  // printed on the angled surface (on by default for a dynamic look).
-  perspective: boolean
+  // Kicker strip: a flat bar in the side's ink color behind the text, like a
+  // pasted paper label. Doubles as legibility over busy photos (on by default).
+  strip: boolean
 }
 
 interface EditorState {
@@ -60,23 +60,24 @@ const emptyImage = (): ImageState => ({
 const defaultLabel = (text: string): LabelState => ({
   text,
   fontFamily: FONT_FAMILY,
-  fontSize: 96,
-  fill: '#ffffff',
-  perspective: true,
+  fontSize: 88,
+  fill: PAPER,
+  strip: true,
 })
 
 export const useEditorStore = create<EditorState>((set) => ({
   images: { left: emptyImage(), right: emptyImage() },
+  // Two flat spot inks: vermillion vs cobalt — classic two-color print pairing.
   frames: {
     left: {
-      mode: 'gradient',
-      solid: '#e11d2a',
-      gradient: { from: '#f43f3f', to: '#7a0d12', angle: 135 },
+      mode: 'solid',
+      solid: '#e2382a',
+      gradient: { from: '#e2382a', to: '#8f1d14', angle: 135 },
     },
     right: {
-      mode: 'gradient',
-      solid: '#1d6fe1',
-      gradient: { from: '#2bb6e0', to: '#0b2a6b', angle: 135 },
+      mode: 'solid',
+      solid: '#1d4fd7',
+      gradient: { from: '#1d4fd7', to: '#0c2a75', angle: 135 },
     },
   },
   labels: { left: defaultLabel('TEAM ONE'), right: defaultLabel('TEAM TWO') },

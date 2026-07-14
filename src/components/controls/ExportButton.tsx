@@ -31,7 +31,7 @@ export default function ExportButton({ stageRef }: { stageRef: RefObject<Konva.S
         ))}
       </select>
       <button type="button" className="btn btn-primary" onClick={handleExport} disabled={busy}>
-        {busy ? 'Saving…' : 'Save image'}
+        {busy ? 'Printing…' : 'Print / save PNG'}
       </button>
     </div>
   )

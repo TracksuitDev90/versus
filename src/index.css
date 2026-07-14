@@ -1,13 +1,16 @@
+/* ---------------------------------------------------------------------------
+   VS.Maker — editorial broadsheet UI.
+   Flat ink on textured paper: hairline rules, heavy grotesque display type,
+   typewriter mono furniture. No shadows, no gradients, no rounded corners.
+--------------------------------------------------------------------------- */
+
 :root {
-  --bg: #0e0f13;
-  --panel: #181a21;
-  --panel-2: #20232c;
-  --border: #2c2f3a;
-  --text: #f4f5f7;
-  --muted: #9aa0ad;
-  --accent: #ffcf00;
-  --accent-2: #e11d2a;
-  color-scheme: dark;
+  --paper: #f2eee3;
+  --paper-2: #eae4d3;
+  --ink: #181611;
+  --ink-soft: #6b6353;
+  --accent: #e2382a;
+  color-scheme: light;
 }
 
 * {
@@ -22,35 +25,67 @@ body,
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background-color: var(--paper);
+  /* Paper tooth: a tiny tiling fractal-noise SVG at whisper opacity. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+  color: var(--ink);
+  font-family: 'Space Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 }
 
 .app {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 18px 24px 40px;
 }
 
-.app-header h1 {
-  font-family: 'Anton', system-ui, sans-serif;
-  letter-spacing: 1px;
-  margin: 4px 0;
-  font-size: 32px;
+/* --- Masthead --- */
+.masthead {
+  border-top: 8px solid var(--ink);
+  padding-top: 3px;
+  margin-bottom: 20px;
 }
 
-.app-header p {
-  margin: 0 0 12px;
-  color: var(--muted);
-  font-size: 14px;
+/* The classic thick-and-thin double rule. */
+.masthead::before {
+  content: '';
+  display: block;
+  border-top: 2px solid var(--ink);
+}
+
+.masthead__title {
+  font-family: 'Archivo Black', system-ui, sans-serif;
+  font-weight: 400; /* the face is already black; don't synthesize */
+  font-size: clamp(52px, 9vw, 104px);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  margin: 14px 0 12px;
+}
+
+.masthead__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  padding: 9px 2px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  .masthead__meta-mid {
+    display: none;
+  }
 }
 
 /* Side panel beside the stage on desktop, stacked below on mobile. */
 .layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 20px;
+  grid-template-columns: 1fr 348px;
+  gap: 22px;
   align-items: start;
 }
 
@@ -68,30 +103,50 @@ body {
   width: 100%;
   max-width: 1920px;
   aspect-ratio: 16 / 9;
-  background: #000;
-  border-radius: 10px;
+  background: var(--paper);
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 2px solid var(--ink);
   touch-action: none; /* don't scroll/zoom the page while dragging photos */
+}
+
+/* --- Colophon --- */
+.colophon {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+  border-top: 2px solid var(--ink);
+  padding-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 /* --- Control panel --- */
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
+  border: 2px solid var(--ink);
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .panel section h3 {
-  margin: 0 0 8px;
-  font-size: 13px;
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--muted);
+  letter-spacing: 0.22em;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 6px;
+}
+
+.panel section h3 em {
+  font-style: normal;
+  color: var(--accent);
+  margin-right: 6px;
 }
 
 .control-group {
@@ -105,19 +160,22 @@ body {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .slider-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .slider-row span {
-  width: 48px;
-  color: var(--muted);
+  width: 52px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
 }
 
 .slider-row input[type='range'] {
@@ -125,7 +183,7 @@ body {
 }
 
 input[type='range'] {
-  accent-color: var(--accent);
+  accent-color: var(--ink);
 }
 
 .toggle-row {
@@ -133,16 +191,19 @@ input[type='range'] {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
 }
 
 .toggle-row span {
-  color: var(--muted);
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
 }
 
 .toggle-row input[type='checkbox'] {
-  accent-color: var(--accent);
+  accent-color: var(--ink);
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -150,59 +211,68 @@ input[type='range'] {
 
 .hint {
   margin: 0;
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 11px;
+  color: var(--ink-soft);
 }
 
 /* --- Buttons & segmented controls --- */
 .btn {
-  background: var(--panel-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 10px 14px;
-  font-size: 14px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .btn:hover {
-  border-color: #3a3e4c;
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-primary:hover {
   background: var(--accent);
-  color: #1b1b1b;
-  font-weight: 700;
   border-color: var(--accent);
+  color: var(--paper);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: default;
 }
 
 .seg {
   display: flex;
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
+  border: 2px solid var(--ink);
 }
 
 .seg-btn {
   flex: 1;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink-soft);
   border: 0;
   padding: 9px 10px;
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .seg-btn.active {
-  background: var(--accent);
-  color: #1b1b1b;
-  font-weight: 700;
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .side-tabs {
@@ -212,12 +282,13 @@ input[type='range'] {
 .text-input,
 .select {
   width: 100%;
-  background: var(--panel-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 9px 10px;
-  font-size: 14px;
+  font-family: inherit;
+  font-size: 13px;
 }
 
 .select {
@@ -232,8 +303,8 @@ input[type='range'] {
 .swatch {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  border: 2px solid var(--border);
+  border-radius: 0;
+  border: 2px solid var(--ink);
   cursor: pointer;
   padding: 0;
 }
@@ -243,23 +314,30 @@ input[type='range'] {
   z-index: 20;
   top: 42px;
   left: 0;
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+/* react-colorful ships rounded corners; square them off to match the system. */
+.color-popover__panel .react-colorful,
+.color-popover__panel .react-colorful__saturation,
+.color-popover__panel .react-colorful__hue {
+  border-radius: 0;
+}
+
 .hex-input {
   width: 100%;
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 0;
   padding: 6px 8px;
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 12px;
   text-transform: uppercase;
 }
 
@@ -267,8 +345,8 @@ input[type='range'] {
 .export-bar {
   display: flex;
   gap: 10px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
+  border-top: 2px solid var(--ink);
+  padding-top: 14px;
 }
 
 .export-bar .select {
