@@ -5,7 +5,7 @@ import { BASE_HEIGHT, BASE_WIDTH, PAPER } from '../../constants'
 import { makeFlecks } from '../../lib/texture'
 
 // Seeded once so the sheet is identical across re-renders and exports.
-const flecks = makeFlecks(19450507, BASE_WIDTH, BASE_HEIGHT)
+const flecks = makeFlecks(19450507, BASE_WIDTH, BASE_HEIGHT, 320)
 
 /**
  * The sheet itself: warm uncoated paper with a fine grain (Noise filter) and a
@@ -23,7 +23,7 @@ export default function PaperLayer() {
   }, [])
 
   return (
-    <Group ref={ref} listening={false} filters={[Konva.Filters.Noise]} noise={0.055}>
+    <Group ref={ref} listening={false} filters={[Konva.Filters.Noise]} noise={0.1}>
       <Rect x={0} y={0} width={BASE_WIDTH} height={BASE_HEIGHT} fill={PAPER} listening={false} />
       {flecks.map((f, i) => (
         <Circle

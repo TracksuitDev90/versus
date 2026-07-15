@@ -1,7 +1,7 @@
 import type Konva from 'konva'
 import type { KonvaEventObject } from 'konva/lib/Node'
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import { Layer, Stage } from 'react-konva'
+import { Group, Layer, Stage } from 'react-konva'
 import {
   BASE_HEIGHT,
   BASE_WIDTH,
@@ -16,6 +16,7 @@ import { useResponsiveStage } from '../lib/useResponsiveStage'
 import { useEditorStore } from '../store/useEditorStore'
 import DividerLayer from './layers/DividerLayer'
 import FrameLayer from './layers/FrameLayer'
+import GrainLayer from './layers/GrainLayer'
 import ImageHalf, { MAX_ZOOM_FACTOR } from './layers/ImageHalf'
 import LabelsLayer from './layers/LabelsLayer'
 import PageFurniture from './layers/PageFurniture'
@@ -116,11 +117,17 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
           <FrameLayer side="right" />
           <ImageHalf side="left" />
           <ImageHalf side="right" />
+          {/* Grain sits above the photos so uploads pick up the paper texture. */}
+          <GrainLayer />
         </Layer>
         {/* Remount once fonts are ready so canvas text re-measures and re-rasterizes
             with the real faces instead of the fallback. */}
         <Layer key={fontsReady ? 'fonts-ready' : 'fonts-loading'} listening={false}>
-          <PageFurniture />
+          {/* Screen-only chrome: hidden by the export helper so the saved PNG is
+              just the graphic itself (photos, VS, labels). */}
+          <Group name="page-furniture" listening={false}>
+            <PageFurniture />
+          </Group>
           <DividerLayer />
           <VsBadge />
           <LabelsLayer />

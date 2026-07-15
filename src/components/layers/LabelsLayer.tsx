@@ -13,7 +13,8 @@ import type { FrameColor } from '../../store/useEditorStore'
 
 // Inset from the plate edges. Placement is deliberately asymmetric — left label
 // top-left, right label bottom-right — so the headlines balance the diagonal.
-const INSET = 44
+// Kept tight so the labels hug the corners and cover as little photo as possible.
+const INSET = 16
 
 /** The strip inherits the side's spot ink so type and color stay one system. */
 function stripColor(frame: FrameColor): string {

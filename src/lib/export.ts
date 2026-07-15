@@ -26,6 +26,11 @@ export async function exportPng(stage: Konva.Stage, targetWidth: number) {
   const prevWidth = stage.width()
   const prevHeight = stage.height()
 
+  // Page furniture (masthead, captions, folio lines) is screen-only chrome:
+  // the saved image should contain just the graphic itself.
+  const furniture = stage.find('.page-furniture')
+  furniture.forEach((node) => node.visible(false))
+
   stage.scale({ x: 1, y: 1 })
   stage.size({ width: BASE_WIDTH, height: BASE_HEIGHT })
   stage.draw()
@@ -34,6 +39,7 @@ export async function exportPng(stage: Konva.Stage, targetWidth: number) {
   const dataUrl = stage.toDataURL({ pixelRatio, mimeType: 'image/png' })
 
   // Restore the on-screen presentation.
+  furniture.forEach((node) => node.visible(true))
   stage.scale({ x: prevScale, y: prevScale })
   stage.size({ width: prevWidth, height: prevHeight })
   stage.draw()
