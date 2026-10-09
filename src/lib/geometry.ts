@@ -24,6 +24,10 @@ export const GUTTER = 20 // half-width of the bare-paper gutter along the seam
 // flat color — it reads as a printing artifact, not a drop shadow.
 export const BLOCK_OFFSET = 18
 
+// The aura orb sits dead center on the seam, behind the VS.
+export const ORB_CENTER: Pt = { x: CX, y: (PLATE_TOP + PLATE_BOTTOM) / 2 }
+export const ORB_RADIUS = 250
+
 export const seamTop: Pt = { x: CX + SEAM_LEAN, y: PLATE_TOP }
 export const seamBottom: Pt = { x: CX - SEAM_LEAN, y: PLATE_BOTTOM }
 

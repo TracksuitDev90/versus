@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import type { SideId } from '../../constants'
 import { imagePolygon } from '../../lib/geometry'
+import { kick } from '../../lib/auraMotion'
 import { coverFit, loadImageFromFile, zoomKeepingCenter } from '../../lib/image'
 import { extractPalette, posterInk } from '../../lib/palette'
 import { useEditorStore } from '../../store/useEditorStore'
@@ -34,6 +35,7 @@ export default function PhotoControls({ side }: { side: SideId }) {
     if (palette.length) {
       setFrame(side, { mode: 'solid', solid: posterInk(palette) })
     }
+    kick(1)
   }
 
   const handleZoom = (value: number) => {

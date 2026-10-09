@@ -1,6 +1,7 @@
 import type Konva from 'konva'
 import { useState, type RefObject } from 'react'
 import { EXPORT_PRESETS } from '../../constants'
+import { kick } from '../../lib/auraMotion'
 import { exportPng } from '../../lib/export'
 
 export default function ExportButton({ stageRef }: { stageRef: RefObject<Konva.Stage> }) {
@@ -12,6 +13,8 @@ export default function ExportButton({ stageRef }: { stageRef: RefObject<Konva.S
     setBusy(true)
     try {
       await exportPng(stageRef.current, width)
+      // A ripple once it's saved (not before — the PNG keeps the frame on screen).
+      kick(0.9)
     } finally {
       setBusy(false)
     }

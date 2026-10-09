@@ -1,6 +1,7 @@
 import type Konva from 'konva'
 import { useState, type RefObject } from 'react'
 import type { SideId } from '../../constants'
+import AuraControls from './AuraControls'
 import ColorControls from './ColorControls'
 import ExportButton from './ExportButton'
 import PhotoControls from './PhotoControls'
@@ -48,6 +49,13 @@ export default function ControlPanel({ stageRef }: { stageRef: RefObject<Konva.S
           <em>03</em> Headline
         </h3>
         <TextControls side={active} />
+      </section>
+
+      <section>
+        <h3>
+          <em>04</em> Aura <small>both plates</small>
+        </h3>
+        <AuraControls />
       </section>
 
       <ExportButton stageRef={stageRef} />

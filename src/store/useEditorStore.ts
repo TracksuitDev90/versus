@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { SideId } from '../constants'
-import { FONT_FAMILY, PAPER } from '../constants'
+import { FONT_FAMILY, INK } from '../constants'
 
 export type FillMode = 'solid' | 'gradient'
 
@@ -36,15 +36,24 @@ export interface LabelState {
   strip: boolean
 }
 
+export interface AuraState {
+  enabled: boolean // the lit orb behind the VS
+  ripple: number // 0–1: how far the surface swells into liquid ridges
+  glow: number // 0–1: how far the light halo spills off the rim
+  motion: boolean // animate on screen; off freezes the current frame
+}
+
 interface EditorState {
   images: Record<SideId, ImageState>
   frames: Record<SideId, FrameColor>
   labels: Record<SideId, LabelState>
+  aura: AuraState
 
   setImage: (side: SideId, patch: Partial<ImageState>) => void
   setFrame: (side: SideId, patch: Partial<FrameColor>) => void
   setGradient: (side: SideId, patch: Partial<GradientFill>) => void
   setLabel: (side: SideId, patch: Partial<LabelState>) => void
+  setAura: (patch: Partial<AuraState>) => void
 }
 
 const emptyImage = (): ImageState => ({
@@ -61,26 +70,33 @@ const defaultLabel = (text: string): LabelState => ({
   text,
   fontFamily: FONT_FAMILY,
   fontSize: 88,
-  fill: PAPER,
+  fill: INK,
   strip: true,
 })
 
 export const useEditorStore = create<EditorState>((set) => ({
   images: { left: emptyImage(), right: emptyImage() },
-  // Two flat spot inks: vermillion vs cobalt — classic two-color print pairing.
+  // Two flat spot inks: cobalt vs vermillion — classic two-color print pairing,
+  // set cool-left / warm-right so the aura runs blue → yellow → red over the top.
   frames: {
     left: {
-      mode: 'solid',
-      solid: '#e2382a',
-      gradient: { from: '#e2382a', to: '#8f1d14', angle: 135 },
-    },
-    right: {
       mode: 'solid',
       solid: '#1d4fd7',
       gradient: { from: '#1d4fd7', to: '#0c2a75', angle: 135 },
     },
+    right: {
+      mode: 'solid',
+      solid: '#e2382a',
+      gradient: { from: '#e2382a', to: '#8f1d14', angle: 135 },
+    },
   },
   labels: { left: defaultLabel('TEAM ONE'), right: defaultLabel('TEAM TWO') },
+  aura: {
+    enabled: true,
+    ripple: 0.2,
+    glow: 0.5,
+    motion: !prefersReducedMotion(),
+  },
 
   setImage: (side, patch) =>
     set((s) => ({ images: { ...s.images, [side]: { ...s.images[side], ...patch } } })),
@@ -98,4 +114,16 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   setLabel: (side, patch) =>
     set((s) => ({ labels: { ...s.labels, [side]: { ...s.labels[side], ...patch } } })),
+
+  setAura: (patch) => set((s) => ({ aura: { ...s.aura, ...patch } })),
 }))
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+}
+
+/** The single color a side is "known by": its solid ink, or its gradient's
+ *  starting ink. Used for kicker strips and the aura's light. */
+export function inkOf(frame: FrameColor): string {
+  return frame.mode === 'gradient' ? frame.gradient.from : frame.solid
+}

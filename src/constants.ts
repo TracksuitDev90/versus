@@ -4,9 +4,10 @@
 export const BASE_WIDTH = 1920
 export const BASE_HEIGHT = 1080
 
-// --- Editorial palette. Flat ink on paper — no shadows, no gloss, anywhere. ---
-export const PAPER = '#f2eee3' // warm uncoated stock
-export const INK = '#181611' // near-black printing ink
+// --- Editorial palette: bone ink on black stock. The only light on the page
+// comes from the aura orb; everything printed stays flat. ---
+export const PAPER = '#1c1b15' // warm black stock (also the orb's unlit body)
+export const INK = '#ece5d3' // bone-white ink
 
 // Archivo Black is the workhorse display face: an extremely heavy grotesque
 // in the Druk/Helvetica-Black editorial tradition.

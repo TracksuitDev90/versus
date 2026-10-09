@@ -1,16 +1,32 @@
 /* ---------------------------------------------------------------------------
-   VS.Maker — editorial broadsheet UI.
-   Flat ink on textured paper: hairline rules, heavy grotesque display type,
-   typewriter mono furniture. No shadows, no gradients, no rounded corners.
+   VS.Maker — editorial broadsheet UI, after dark.
+   Bone ink on warm black stock, hairline rules, heavy grotesque display type,
+   typewriter mono furniture, and a film grain that never quite sits still.
+   The only light comes from the aura: the live orb in the masthead and on
+   the stage, plus a few accents that wear its colors (--spec-0 … --spec-7,
+   set from the current inks by App). Everything else stays flat and square.
 --------------------------------------------------------------------------- */
 
 :root {
-  --paper: #f2eee3;
-  --paper-2: #eae4d3;
-  --ink: #181611;
-  --ink-soft: #6b6353;
-  --accent: #e2382a;
-  color-scheme: light;
+  --bg: #1c1b15; /* matches PAPER in constants.ts — the orbs' bodies are this color */
+  --bg-raise: #23221b;
+  --ink: #ece5d3;
+  --ink-soft: #8e8876;
+  --line: rgba(236, 229, 211, 0.16);
+  --line-strong: rgba(236, 229, 211, 0.34);
+
+  /* Fallback light ring (cobalt → key yellow → vermillion); App overwrites these. */
+  --spec-0: rgb(34 94 249);
+  --spec-1: rgb(34 94 249);
+  --spec-2: rgb(134 167 252);
+  --spec-3: rgb(199 195 76);
+  --spec-4: rgb(237 222 41);
+  --spec-5: rgb(235 156 46);
+  --spec-6: rgb(234 97 50);
+  --spec-7: rgb(235 58 44);
+  --spectrum: var(--spec-0), var(--spec-2), var(--spec-4), var(--spec-6), var(--spec-7);
+
+  color-scheme: dark;
 }
 
 * {
@@ -21,15 +37,39 @@ html,
 body,
 #root {
   margin: 0;
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
-  background-color: var(--paper);
-  /* Paper tooth: a tiny tiling fractal-noise SVG at whisper opacity. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+  background-color: var(--bg);
   color: var(--ink);
   font-family: 'Space Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+/* Film grain over the whole page. An oversized noise tile jumps between a few
+   offsets on a stepped timer, so it flickers like projected film rather than
+   sliding. Transform-only, so it stays on the compositor. */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 100;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.075;
+  animation: grain 0.8s steps(1) infinite;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(-3%, 2%); }
+  33% { transform: translate(2%, -4%); }
+  50% { transform: translate(-4%, -1%); }
+  67% { transform: translate(3%, 3%); }
+  83% { transform: translate(-1%, 4%); }
 }
 
 .app {
@@ -38,9 +78,14 @@ body {
   padding: 18px 24px 40px;
 }
 
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 /* --- Masthead --- */
 .masthead {
-  border-top: 8px solid var(--ink);
+  border-top: 4px solid var(--ink);
   padding-top: 3px;
   margin-bottom: 20px;
 }
@@ -49,35 +94,63 @@ body {
 .masthead::before {
   content: '';
   display: block;
-  border-top: 2px solid var(--ink);
+  border-top: 1px solid var(--ink);
+}
+
+.masthead__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .masthead__title {
   font-family: 'Archivo Black', system-ui, sans-serif;
   font-weight: 400; /* the face is already black; don't synthesize */
-  font-size: clamp(52px, 9vw, 104px);
+  font-size: clamp(34px, 11vw, 104px);
   line-height: 0.95;
   letter-spacing: -0.025em;
   text-transform: uppercase;
   margin: 14px 0 12px;
 }
 
+/* The live orb. The canvas is mostly halo, so it overhangs the rules above
+   and below rather than pushing the masthead taller. */
+.masthead__mark {
+  flex: none;
+  width: clamp(56px, 16vw, 200px);
+  aspect-ratio: 1;
+  margin: -34px -18px -34px 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
 .masthead__meta {
+  position: relative; /* sit above the mark's overhanging halo */
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  border-top: 2px solid var(--ink);
-  border-bottom: 2px solid var(--ink);
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
   padding: 9px 2px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--ink);
 }
 
 @media (max-width: 700px) {
   .masthead__meta-mid {
     display: none;
+  }
+
+  .masthead__row {
+    gap: 8px;
+  }
+
+  .masthead__mark {
+    margin: -14px -12px -14px 0;
   }
 }
 
@@ -103,9 +176,9 @@ body {
   width: 100%;
   max-width: 1920px;
   aspect-ratio: 16 / 9;
-  background: var(--paper);
+  background: var(--bg);
   overflow: hidden;
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
   touch-action: none; /* don't scroll/zoom the page while dragging photos */
 }
 
@@ -115,7 +188,7 @@ body {
   justify-content: space-between;
   gap: 16px;
   margin-top: 22px;
-  border-top: 2px solid var(--ink);
+  border-top: 1px solid var(--line-strong);
   padding-top: 8px;
   font-size: 11px;
   font-weight: 700;
@@ -126,33 +199,49 @@ body {
 
 /* --- Control panel --- */
 .panel {
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
+  background: var(--bg-raise);
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .panel section h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   margin: 0 0 10px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  border-bottom: 1px solid var(--ink);
-  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 7px;
 }
 
+/* Section numerals walk the light ring, left ink to right ink. */
 .panel section h3 em {
   font-style: normal;
-  color: var(--accent);
-  margin-right: 6px;
+}
+
+.panel section:nth-of-type(1) h3 em { color: var(--spec-0); }
+.panel section:nth-of-type(2) h3 em { color: var(--spec-3); }
+.panel section:nth-of-type(3) h3 em { color: var(--spec-5); }
+.panel section:nth-of-type(4) h3 em { color: var(--spec-7); }
+
+.panel section h3 small {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
 }
 
 .control-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .row {
@@ -182,8 +271,68 @@ body {
   flex: 1;
 }
 
+/* Hairline track, bone bead. The bead is the one round thing in the panel,
+   a small echo of the orb. */
 input[type='range'] {
-  accent-color: var(--ink);
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--line-strong);
+}
+
+input[type='range']::-moz-range-track {
+  height: 1px;
+  background: var(--line-strong);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: box-shadow 0.2s;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: box-shadow 0.2s;
+}
+
+input[type='range']:hover::-webkit-slider-thumb,
+input[type='range']:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgba(236, 229, 211, 0.12);
+}
+
+input[type='range']:hover::-moz-range-thumb,
+input[type='range']:active::-moz-range-thumb {
+  box-shadow: 0 0 0 5px rgba(236, 229, 211, 0.12);
+}
+
+input[type='range']:focus-visible {
+  outline: none;
+}
+
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px var(--bg-raise), 0 0 0 4px var(--ink);
+}
+
+input[type='range']:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 2px var(--bg-raise), 0 0 0 4px var(--ink);
 }
 
 .toggle-row {
@@ -202,16 +351,48 @@ input[type='range'] {
   font-size: 11px;
 }
 
-.toggle-row input[type='checkbox'] {
-  accent-color: var(--ink);
-  width: 16px;
-  height: 16px;
+/* Square switch: a hairline box with a bead that slides across and lights up
+   in the aura's colors when on. */
+.switch {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 36px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--line-strong);
+  background: transparent;
   cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1), background 0.2s, box-shadow 0.2s;
+}
+
+.switch:checked {
+  border-color: var(--ink);
+}
+
+.switch:checked::after {
+  transform: translateX(18px);
+  background: conic-gradient(var(--spec-4), var(--spec-7), var(--spec-0), var(--spec-2), var(--spec-4));
+  box-shadow: 0 0 8px 1px var(--spec-4);
 }
 
 .hint {
   margin: 0;
   font-size: 11px;
+  line-height: 1.5;
   color: var(--ink-soft);
 }
 
@@ -219,31 +400,64 @@ input[type='range'] {
 .btn {
   background: transparent;
   color: var(--ink);
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
   border-radius: 0;
-  padding: 10px 14px;
+  padding: 11px 14px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .btn:hover {
   background: var(--ink);
-  color: var(--paper);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+/* The export button wears the light: a spectral border that slowly turns,
+   and a soft bloom of the same colors behind it on hover. */
+@property --spin {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
 .btn-primary {
-  background: var(--ink);
-  color: var(--paper);
+  position: relative;
+  isolation: isolate;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    conic-gradient(from var(--spin), var(--spectrum), var(--spec-0)) border-box;
+  color: var(--ink);
+  animation: spin 7s linear infinite;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  background: conic-gradient(from var(--spin), var(--spectrum), var(--spec-0));
+  filter: blur(14px);
+  opacity: 0;
+  transition: opacity 0.35s;
 }
 
 .btn-primary:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--paper);
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    conic-gradient(from var(--spin), var(--spectrum), var(--spec-0)) border-box;
+  color: var(--ink);
+  border-color: transparent;
+}
+
+.btn-primary:hover::after {
+  opacity: 0.6;
 }
 
 .btn-primary:disabled {
@@ -251,9 +465,15 @@ input[type='range'] {
   cursor: default;
 }
 
+@keyframes spin {
+  to {
+    --spin: 360deg;
+  }
+}
+
 .seg {
   display: flex;
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
 }
 
 .seg-btn {
@@ -261,18 +481,23 @@ input[type='range'] {
   background: transparent;
   color: var(--ink-soft);
   border: 0;
-  padding: 9px 10px;
+  padding: 10px 10px;
   font-family: inherit;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.seg-btn:hover {
+  color: var(--ink);
 }
 
 .seg-btn.active {
   background: var(--ink);
-  color: var(--paper);
+  color: var(--bg);
 }
 
 .side-tabs {
@@ -282,13 +507,19 @@ input[type='range'] {
 .text-input,
 .select {
   width: 100%;
-  background: transparent;
+  background: var(--bg);
   color: var(--ink);
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
   border-radius: 0;
-  padding: 9px 10px;
+  padding: 10px 10px;
   font-family: inherit;
   font-size: 13px;
+}
+
+.text-input:focus,
+.select:focus {
+  border-color: var(--ink);
+  outline: none;
 }
 
 .select {
@@ -301,21 +532,27 @@ input[type='range'] {
 }
 
 .swatch {
-  width: 34px;
-  height: 34px;
+  display: block;
+  width: 36px;
+  height: 36px;
   border-radius: 0;
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
+  box-shadow: inset 0 0 0 3px var(--bg-raise);
   cursor: pointer;
   padding: 0;
+}
+
+.swatch:hover {
+  border-color: var(--ink);
 }
 
 .color-popover__panel {
   position: absolute;
   z-index: 20;
-  top: 42px;
+  top: 44px;
   left: 0;
-  background: var(--paper);
-  border: 2px solid var(--ink);
+  background: var(--bg-raise);
+  border: 1px solid var(--line-strong);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -331,9 +568,9 @@ input[type='range'] {
 
 .hex-input {
   width: 100%;
-  background: transparent;
+  background: var(--bg);
   color: var(--ink);
-  border: 2px solid var(--ink);
+  border: 1px solid var(--line-strong);
   border-radius: 0;
   padding: 6px 8px;
   font-family: inherit;
@@ -345,10 +582,21 @@ input[type='range'] {
 .export-bar {
   display: flex;
   gap: 10px;
-  border-top: 2px solid var(--ink);
-  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
 }
 
 .export-bar .select {
   flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  .btn-primary {
+    animation: none;
+  }
+
+  .switch::after {
+    transition: none;
+  }
 }

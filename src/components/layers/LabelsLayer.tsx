@@ -8,18 +8,12 @@ import {
   PLATE_RIGHT,
   PLATE_TOP,
 } from '../../lib/geometry'
-import { useEditorStore } from '../../store/useEditorStore'
-import type { FrameColor } from '../../store/useEditorStore'
+import { inkOf, useEditorStore } from '../../store/useEditorStore'
 
 // Inset from the plate edges. Placement is deliberately asymmetric — left label
 // top-left, right label bottom-right — so the headlines balance the diagonal.
 // Kept tight so the labels hug the corners and cover as little photo as possible.
 const INSET = 16
-
-/** The strip inherits the side's spot ink so type and color stay one system. */
-function stripColor(frame: FrameColor): string {
-  return frame.mode === 'gradient' ? frame.gradient.from : frame.solid
-}
 
 /** Editorial headline labels: heavy flat type, optionally on a kicker strip. */
 export default function LabelsLayer() {
@@ -69,7 +63,8 @@ function HeadlineLabel({ side }: { side: SideId }) {
 
   return (
     <Label ref={labelRef} x={x} y={y} listening={false}>
-      <Tag fill={stripColor(frame)} listening={false} />
+      {/* The strip inherits the side's spot ink so type and color stay one system. */}
+      <Tag fill={inkOf(frame)} listening={false} />
       <Text {...textProps} padding={Math.round(label.fontSize * 0.3)} />
     </Label>
   )

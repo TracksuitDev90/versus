@@ -1,12 +1,24 @@
 import type { SideId } from '../../constants'
+import { kick } from '../../lib/auraMotion'
+import type { FrameColor, GradientFill } from '../../store/useEditorStore'
 import { useEditorStore } from '../../store/useEditorStore'
 import ColorPopover from '../ui/ColorPopover'
 
-/** Frame color controls for one side: solid or linear gradient. */
+/** Frame color controls for one side: solid or linear gradient. Every change
+ *  nudges the orb, so dragging through colors makes it shimmer. */
 export default function ColorControls({ side }: { side: SideId }) {
   const frame = useEditorStore((s) => s.frames[side])
-  const setFrame = useEditorStore((s) => s.setFrame)
-  const setGradient = useEditorStore((s) => s.setGradient)
+  const storeSetFrame = useEditorStore((s) => s.setFrame)
+  const storeSetGradient = useEditorStore((s) => s.setGradient)
+
+  const setFrame = (patch: Partial<FrameColor>) => {
+    storeSetFrame(side, patch)
+    kick(0.2)
+  }
+  const setGradient = (patch: Partial<GradientFill>) => {
+    storeSetGradient(side, patch)
+    kick(0.2)
+  }
 
   return (
     <div className="control-group">
@@ -14,14 +26,14 @@ export default function ColorControls({ side }: { side: SideId }) {
         <button
           type="button"
           className={frame.mode === 'solid' ? 'seg-btn active' : 'seg-btn'}
-          onClick={() => setFrame(side, { mode: 'solid' })}
+          onClick={() => setFrame({ mode: 'solid' })}
         >
           Solid
         </button>
         <button
           type="button"
           className={frame.mode === 'gradient' ? 'seg-btn active' : 'seg-btn'}
-          onClick={() => setFrame(side, { mode: 'gradient' })}
+          onClick={() => setFrame({ mode: 'gradient' })}
         >
           Gradient
         </button>
@@ -32,7 +44,7 @@ export default function ColorControls({ side }: { side: SideId }) {
           <span>Color</span>
           <ColorPopover
             color={frame.solid}
-            onChange={(c) => setFrame(side, { solid: c })}
+            onChange={(c) => setFrame({ solid: c })}
             label="Frame color"
           />
         </div>
@@ -42,13 +54,13 @@ export default function ColorControls({ side }: { side: SideId }) {
             <span>From</span>
             <ColorPopover
               color={frame.gradient.from}
-              onChange={(c) => setGradient(side, { from: c })}
+              onChange={(c) => setGradient({ from: c })}
               label="Gradient start"
             />
             <span>To</span>
             <ColorPopover
               color={frame.gradient.to}
-              onChange={(c) => setGradient(side, { to: c })}
+              onChange={(c) => setGradient({ to: c })}
               label="Gradient end"
             />
           </div>
@@ -60,7 +72,7 @@ export default function ColorControls({ side }: { side: SideId }) {
               max={360}
               step={1}
               value={frame.gradient.angle}
-              onChange={(e) => setGradient(side, { angle: Number(e.target.value) })}
+              onChange={(e) => setGradient({ angle: Number(e.target.value) })}
             />
           </label>
         </>

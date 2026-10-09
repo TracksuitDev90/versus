@@ -1,5 +1,7 @@
 import type Konva from 'konva'
 import { BASE_HEIGHT, BASE_WIDTH, FONT_FAMILY, MONO_FONT_FAMILY } from '../constants'
+import { AURA_EXTENT, renderStageAuraAt } from './aura'
+import { ORB_RADIUS } from './geometry'
 
 /**
  * Export the stage as a high-resolution PNG and trigger a download.
@@ -36,7 +38,11 @@ export async function exportPng(stage: Konva.Stage, targetWidth: number) {
   stage.draw()
 
   const pixelRatio = targetWidth / BASE_WIDTH
+  // The orb is a live WebGL render sized for the screen; redraw the frame
+  // that's showing at print resolution so its grain and edges stay crisp.
+  const restoreAura = renderStageAuraAt(ORB_RADIUS * AURA_EXTENT * 2 * pixelRatio)
   const dataUrl = stage.toDataURL({ pixelRatio, mimeType: 'image/png' })
+  restoreAura()
 
   // Restore the on-screen presentation.
   furniture.forEach((node) => node.visible(true))

@@ -14,6 +14,7 @@ import { CX, imagePolygon } from '../lib/geometry'
 import { zoomKeepingCenter } from '../lib/image'
 import { useResponsiveStage } from '../lib/useResponsiveStage'
 import { useEditorStore } from '../store/useEditorStore'
+import AuraLayer from './layers/AuraLayer'
 import DividerLayer from './layers/DividerLayer'
 import FrameLayer from './layers/FrameLayer'
 import GrainLayer from './layers/GrainLayer'
@@ -119,6 +120,12 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
           <ImageHalf side="right" />
           {/* Grain sits above the photos so uploads pick up the paper texture. */}
           <GrainLayer />
+          <DividerLayer />
+        </Layer>
+        {/* The orb animates, so it gets a layer of its own: each frame repaints
+            just this one image, not the photos underneath. */}
+        <Layer listening={false}>
+          <AuraLayer scale={scale} />
         </Layer>
         {/* Remount once fonts are ready so canvas text re-measures and re-rasterizes
             with the real faces instead of the fallback. */}
@@ -128,7 +135,6 @@ const EditorStage = forwardRef<Konva.Stage>((_, ref) => {
           <Group name="page-furniture" listening={false}>
             <PageFurniture />
           </Group>
-          <DividerLayer />
           <VsBadge />
           <LabelsLayer />
         </Layer>

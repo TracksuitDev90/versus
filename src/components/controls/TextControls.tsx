@@ -50,6 +50,7 @@ export default function TextControls({ side }: { side: SideId }) {
         <span>Kicker strip (uses this side's ink)</span>
         <input
           type="checkbox"
+          className="switch"
           checked={label.strip}
           onChange={(e) => setLabel(side, { strip: e.target.checked })}
         />
